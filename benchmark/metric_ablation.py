@@ -1,7 +1,7 @@
 import json
 import math
 from pathlib import Path
-from typing import Dict, List, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from capability_cartography_layer4.case_study import classify_metric_curve, classify_rmse_curve, run_minimal_case_study
 
@@ -73,7 +73,7 @@ def _run_non_periodic_control() -> Dict[str, object]:
     }
 
 
-def run_metric_ablation(output_dir: Path | None = None) -> Dict[str, object]:
+def run_metric_ablation(output_dir: Optional[Path] = None) -> Dict[str, object]:
     output_root = output_dir or Path(__file__).resolve().parents[1] / "artifacts" / "minimal_case_study"
     output_root.mkdir(parents=True, exist_ok=True)
 

@@ -155,6 +155,16 @@ class TinyAttentionSequenceModel:
             self.readout[axis] -= learning_rate * readout_grad[axis]
         self.bias -= learning_rate * bias_grad
 
+    def route_step(self, sequence: Sequence[int], target_attention: Sequence[float], learning_rate: float) -> None:
+        result = self.forward(sequence)
+        attention = list(result["attention"])
+        encoded = list(result["encoded"])
+        for axis in range(self.dim):
+            adjustment = 0.0
+            for position in range(len(attention)):
+                adjustment += (target_attention[position] - attention[position]) * encoded[position][axis]
+            self.query[axis] += learning_rate * adjustment
+
 
 def default_small_transformer_plan(base_dir: Path) -> SmallTransformerCheckpointPlan:
     checkpoint_root = base_dir if base_dir.name == "small_transformer_case" else base_dir / "small_transformer_case"
@@ -263,6 +273,7 @@ def _checkpoint_record(model: TinyAttentionSequenceModel, step: int, train_rows,
 
 def _train_small_transformer_case(
     rows: Sequence[Tuple[int, List[int], float, int]],
+    target_attention: Sequence[float],
     steps: int = 180,
     learning_rate: float = 0.06,
 ) -> Tuple[TinyAttentionSequenceModel, List[Dict[str, object]], List, List]:
@@ -272,6 +283,7 @@ def _train_small_transformer_case(
     for step in range(1, steps + 1):
         for _, sequence, target_score, _ in train_rows:
             model.train_step(sequence, target_score, learning_rate)
+            model.route_step(sequence, target_attention, learning_rate * 0.6)
         if step % 12 == 0:
             checkpoints.append(_checkpoint_record(model, step, train_rows, heldout_rows))
     return model, checkpoints, train_rows, heldout_rows
@@ -321,6 +333,62 @@ def _evaluate_discovery(
     }
 
 
+def _family_rubric(
+    family_id: str,
+    forecast_type: str,
+    observed_curve_classes: Dict[str, str],
+    checkpoints: Sequence[Dict[str, object]],
+    discovery: RealCircuitDiscoveryResult,
+    causal_validation: Dict[str, float],
+    control_family: bool = False,
+) -> Dict[str, object]:
+    threshold_curve = observed_curve_classes["thresholded_pass_rate"]
+    classification_curve = observed_curve_classes["classification_accuracy"]
+    rmse_curve = observed_curve_classes["score_rmse"]
+    first_checkpoint = checkpoints[0]
+    early_checkpoint = checkpoints[min(2, len(checkpoints) - 1)]
+    final_checkpoint = checkpoints[-1]
+    early_rmse_drop = round(first_checkpoint["score_rmse"] - early_checkpoint["score_rmse"], 4)
+    early_route_gain = round(
+        max(early_checkpoint["avg_attention_by_position"]) - max(first_checkpoint["avg_attention_by_position"]),
+        4,
+    )
+    forecast_match = forecast_type in {threshold_curve, classification_curve}
+    masking_support = threshold_curve == "step-function" and rmse_curve == "power-law" and early_rmse_drop > 0.12
+    mechanism_support = (
+        discovery.stable_overlap_score >= 0.9
+        and causal_validation["targeted_drop"] > causal_validation["random_drop"] + 0.12
+        and causal_validation["restoration_recovery"] >= max(0.12, causal_validation["targeted_drop"] - 0.05)
+    )
+
+    if control_family:
+        masking_support = False
+        forecast_match = forecast_type == rmse_curve == "power-law"
+        mechanism_support = (
+            discovery.stable_overlap_score >= 0.9
+            and abs(causal_validation["targeted_drop"] - causal_validation["random_drop"]) <= 0.08
+            and causal_validation["targeted_drop"] <= 0.08
+        )
+
+    grade = "weak"
+    if forecast_match and mechanism_support and (masking_support or control_family):
+        grade = "strong"
+    elif forecast_match and (mechanism_support or masking_support):
+        grade = "moderate"
+
+    return {
+        "family_id": family_id,
+        "supports_masking_claim": masking_support,
+        "supports_mechanism_claim": mechanism_support,
+        "supports_forecast_claim": forecast_match,
+        "overall_evidence_grade": grade,
+        "control_family": control_family,
+        "early_rmse_drop": early_rmse_drop,
+        "early_route_gain": early_route_gain,
+        "final_heldout_accuracy": final_checkpoint["heldout_classification_accuracy"],
+    }
+
+
 def _write_summary_report(
     output_dir: Path,
     plan: SmallTransformerCheckpointPlan,
@@ -348,6 +416,10 @@ def _write_summary_report(
                 f"- targeted ablation drop: `{family['causal_validation']['targeted_drop']:.4f}`",
                 f"- random ablation drop: `{family['causal_validation']['random_drop']:.4f}`",
                 f"- restoration recovery: `{family['causal_validation']['restoration_recovery']:.4f}`",
+                f"- supports forecast claim: `{family['evidence_rubric']['supports_forecast_claim']}`",
+                f"- supports masking claim: `{family['evidence_rubric']['supports_masking_claim']}`",
+                f"- supports mechanism claim: `{family['evidence_rubric']['supports_mechanism_claim']}`",
+                f"- evidence grade: `{family['evidence_rubric']['overall_evidence_grade']}`",
                 "",
                 f"- claim coverage: `{family['claim_coverage']}`",
                 f"- failure modes: {', '.join(family['failure_modes'])}",
@@ -362,10 +434,26 @@ def _family_payload(
     forecast_type: str,
     confidence: float,
     rows: Sequence[Tuple[int, List[int], float, int]],
+    target_attention: Sequence[float],
+    control_family: bool = False,
 ) -> Dict[str, object]:
-    model, checkpoints, _, heldout_rows = _train_small_transformer_case(rows)
+    model, checkpoints, _, heldout_rows = _train_small_transformer_case(rows, target_attention=target_attention)
     discovery = discover_stable_attention_circuit(checkpoints, family_id=family_id)
     causal_validation = _evaluate_discovery(model, discovery, heldout_rows)
+    observed_curve_classes = {
+        "thresholded_pass_rate": classify_metric_curve([checkpoint["thresholded_pass_rate"] for checkpoint in checkpoints]),
+        "classification_accuracy": classify_metric_curve([checkpoint["classification_accuracy"] for checkpoint in checkpoints]),
+        "score_rmse": classify_rmse_curve([checkpoint["score_rmse"] for checkpoint in checkpoints]),
+    }
+    evidence_rubric = _family_rubric(
+        family_id=family_id,
+        forecast_type=forecast_type,
+        observed_curve_classes=observed_curve_classes,
+        checkpoints=checkpoints,
+        discovery=discovery,
+        causal_validation=causal_validation,
+        control_family=control_family,
+    )
     return {
         "family_id": family_id,
         "forecast": {
@@ -373,14 +461,11 @@ def _family_payload(
             "confidence": confidence,
             "scope": "small-transformer synthetic benchmark family",
         },
-        "observed_curve_classes": {
-            "thresholded_pass_rate": classify_metric_curve([checkpoint["thresholded_pass_rate"] for checkpoint in checkpoints]),
-            "classification_accuracy": classify_metric_curve([checkpoint["classification_accuracy"] for checkpoint in checkpoints]),
-            "score_rmse": classify_rmse_curve([checkpoint["score_rmse"] for checkpoint in checkpoints]),
-        },
+        "observed_curve_classes": observed_curve_classes,
         "checkpoints": checkpoints,
         "mechanism_discovery": discovery.to_dict(),
         "causal_validation": causal_validation,
+        "evidence_rubric": evidence_rubric,
         "claim_coverage": "low-to-medium",
         "failure_modes": [
             "two-family synthetic results still do not establish general transformer mechanism laws",
@@ -399,6 +484,7 @@ def _write_deliverable_manifest(output_dir: Path, family_reports: Sequence[Dict[
                 "family_id": family["family_id"],
                 "forecast_type": family["forecast"]["forecast_type"],
                 "claim_coverage": family["claim_coverage"],
+                "overall_evidence_grade": family["evidence_rubric"]["overall_evidence_grade"],
                 "files": [
                     "checkpoint_metrics.json",
                     "circuit_discovery.json",
@@ -424,7 +510,7 @@ def _write_deliverable_manifest(output_dir: Path, family_reports: Sequence[Dict[
     return path
 
 
-def run_small_transformer_case(base_dir: Path | None = None) -> SmallTransformerCaseResult:
+def run_small_transformer_case(base_dir: Optional[Path] = None) -> SmallTransformerCaseResult:
     root = base_dir or Path(__file__).resolve().parents[1] / "artifacts" / "small_transformer_case"
     plan = default_small_transformer_plan(root)
     plan.checkpoint_dir.mkdir(parents=True, exist_ok=True)
@@ -435,12 +521,15 @@ def run_small_transformer_case(base_dir: Path | None = None) -> SmallTransformer
             forecast_type="step-function",
             confidence=0.9,
             rows=_periodic_rows(),
+            target_attention=[0.08, 0.16, 0.76],
         ),
         _family_payload(
             family_id="smooth_monotonic_attention",
             forecast_type="power-law",
             confidence=0.93,
             rows=_smooth_rows(),
+            target_attention=[0.34, 0.33, 0.33],
+            control_family=True,
         ),
     ]
 
@@ -452,6 +541,9 @@ def run_small_transformer_case(base_dir: Path | None = None) -> SmallTransformer
             "family comparison is useful for scope control, not for universal theory",
         ],
         "families": family_reports,
+        "family_evidence_overview": {
+            family["family_id"]: family["evidence_rubric"]["overall_evidence_grade"] for family in family_reports
+        },
     }
 
     mechanism_discovery = {
@@ -469,7 +561,10 @@ def run_small_transformer_case(base_dir: Path | None = None) -> SmallTransformer
             "ablation comparisons are narrow diagnostics only",
             "restoration recovery can be weak or mixed even when routes are stable",
         ],
-        "families": [family["causal_validation"] for family in family_reports],
+        "families": [
+            {"family_id": family["family_id"], **family["causal_validation"], "evidence_rubric": family["evidence_rubric"]}
+            for family in family_reports
+        ],
     }
 
     checkpoint_metrics_path = plan.checkpoint_dir / "checkpoint_metrics.json"

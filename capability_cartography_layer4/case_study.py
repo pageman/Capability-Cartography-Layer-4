@@ -2,7 +2,7 @@ import json
 import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from .orchestration import CCL4Pipeline
 
@@ -200,7 +200,7 @@ def _write_markdown(path: Path, lines: List[str]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def run_minimal_case_study(output_dir: Path | None = None) -> Dict[str, object]:
+def run_minimal_case_study(output_dir: Optional[Path] = None) -> Dict[str, object]:
     output_root = output_dir or Path(__file__).resolve().parents[1] / "artifacts" / "minimal_case_study"
     output_root.mkdir(parents=True, exist_ok=True)
 

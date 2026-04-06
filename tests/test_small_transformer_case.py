@@ -30,6 +30,8 @@ class SmallTransformerCaseTests(unittest.TestCase):
             self.assertEqual(len(discovery["families"]), 2)
             self.assertEqual(len(causal["families"]), 2)
             self.assertEqual(len(manifest["families"]), 2)
+            self.assertIn("family_evidence_overview", metrics)
+            self.assertIn("evidence_rubric", metrics["families"][0])
             self.assertLess(
                 metrics["families"][0]["checkpoints"][-1]["score_rmse"],
                 metrics["families"][0]["checkpoints"][0]["score_rmse"],
@@ -37,6 +39,10 @@ class SmallTransformerCaseTests(unittest.TestCase):
             self.assertGreaterEqual(
                 discovery["families"][0]["stable_overlap_score"],
                 0.5,
+            )
+            self.assertIn(
+                metrics["families"][0]["evidence_rubric"]["overall_evidence_grade"],
+                {"strong", "moderate", "weak"},
             )
 
 

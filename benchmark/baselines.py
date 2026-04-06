@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from capability_cartography_layer4.orchestration import CCL4Pipeline
 
@@ -174,7 +174,7 @@ def _evaluate(rows: List[Dict[str, object]], predictor) -> Tuple[float, List[Dic
     return correct / max(1, len(rows)), outputs
 
 
-def run_baseline_benchmark(output_dir: Path | None = None) -> Dict[str, object]:
+def run_baseline_benchmark(output_dir: Optional[Path] = None) -> Dict[str, object]:
     output_root = output_dir or Path(__file__).resolve().parents[1] / "artifacts" / "minimal_benchmark"
     output_root.mkdir(parents=True, exist_ok=True)
 

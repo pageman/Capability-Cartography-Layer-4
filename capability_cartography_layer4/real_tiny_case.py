@@ -1,7 +1,7 @@
 import json
 import math
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 try:
     import torch
@@ -180,8 +180,13 @@ def _sparse_completeness(model: nn.Module, periodic: bool) -> float:
             distance = torch.abs(weights - target).sum().item()
             max_distance = torch.abs(target).sum().item() + 1e-9
             return max(0.0, 1.0 - (distance / max_distance))
-        hidden_weights = torch.abs(model.linear1.weight).mean().item()
-        return min(1.0, hidden_weights)
+        if hasattr(model, "linear1"):
+            hidden_weights = torch.abs(model.linear1.weight).mean().item()
+            return min(1.0, hidden_weights)
+        if hasattr(model, "linear"):
+            linear_weights = torch.abs(model.linear.weight).mean().item()
+            return min(1.0, linear_weights)
+        return 0.0
 
 
 def _train_model(model: nn.Module, train_rows, heldout_rows, steps: int, learning_rate: float, periodic: bool):
@@ -242,8 +247,12 @@ def _causal_validation(model: nn.Module, heldout_features, heldout_scores, heldo
         with torch.no_grad():
             if periodic:
                 model.linear.weight[:, 2:] = 0.0
-            else:
+            elif hasattr(model, "linear1"):
                 model.linear1.weight.zero_()
+            elif hasattr(model, "linear"):
+                model.linear.weight.zero_()
+            else:
+                raise AttributeError("Unsupported model structure for non-periodic causal validation.")
     else:
         saved_state = model.snapshot()
         if periodic:
@@ -434,7 +443,72 @@ def _targeted_vs_random_ablation(model, heldout_features, heldout_scores, heldou
     }
 
 
-def run_real_tiny_suite(output_dir: Path | None = None) -> Dict[str, object]:
+def _case_evidence_rubric(
+    case_id: str,
+    forecast: Dict[str, object],
+    observed_curve_classes: Dict[str, str],
+    checkpoints: List[Dict[str, float]],
+    causal_validation: Dict[str, float],
+    targeted_vs_random: Optional[Dict[str, float]] = None,
+    control_case: bool = False,
+) -> Dict[str, object]:
+    early = checkpoints[min(2, len(checkpoints) - 1)]
+    first = checkpoints[0]
+    late = checkpoints[-1]
+    rmse_drop = round(first["score_rmse"] - early["score_rmse"], 4)
+    fourier_gain = round(early.get("fourier_signal", 0.0) - first.get("fourier_signal", 0.0), 4)
+    completeness_gain = round(early.get("circuit_completeness", 0.0) - first.get("circuit_completeness", 0.0), 4)
+    late_fourier_strength = round(late.get("fourier_signal", 0.0), 4)
+
+    supports_forecast = str(forecast["forecast_type"]) in {
+        observed_curve_classes["thresholded_pass_rate"],
+        observed_curve_classes["classification_accuracy"],
+        observed_curve_classes["score_rmse"],
+    }
+    supports_masking = (
+        observed_curve_classes["thresholded_pass_rate"] == "step-function"
+        or observed_curve_classes["classification_accuracy"] == "step-function"
+    ) and (
+        observed_curve_classes["score_rmse"] == "power-law"
+        and rmse_drop > 0.15
+    )
+    supports_mechanism = (
+        late_fourier_strength > 0.45
+        and completeness_gain > 0.2
+        and targeted_vs_random is not None
+        and targeted_vs_random["targeted_drop"] > targeted_vs_random["random_drop"] + 0.15
+        and causal_validation["accuracy_recovery_after_restoration"] >= 0.15
+    )
+    if control_case:
+        supports_masking = False
+        supports_forecast = observed_curve_classes["score_rmse"] == "power-law"
+        supports_mechanism = (
+            abs(fourier_gain) <= 0.05
+            and abs(completeness_gain) <= 0.1
+            and (targeted_vs_random is None or abs(targeted_vs_random["targeted_drop"] - targeted_vs_random["random_drop"]) <= 0.2)
+        )
+
+    grade = "weak"
+    if supports_forecast and supports_mechanism and (supports_masking or control_case):
+        grade = "strong"
+    elif supports_forecast and (supports_masking or supports_mechanism):
+        grade = "moderate"
+
+    return {
+        "case_id": case_id,
+        "supports_masking_claim": supports_masking,
+        "supports_mechanism_claim": supports_mechanism,
+        "supports_forecast_claim": supports_forecast,
+        "overall_evidence_grade": grade,
+        "control_case": control_case,
+        "early_rmse_drop": rmse_drop,
+        "early_fourier_gain": fourier_gain,
+        "early_completeness_gain": completeness_gain,
+        "late_fourier_strength": late_fourier_strength,
+    }
+
+
+def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
     output_root = output_dir or Path(__file__).resolve().parents[1] / "artifacts" / "minimal_suite"
     output_root.mkdir(parents=True, exist_ok=True)
 
@@ -467,6 +541,14 @@ def run_real_tiny_suite(output_dir: Path | None = None) -> Dict[str, object]:
     periodic_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(
         periodic_payload["forecast"], periodic_checkpoints
     )
+    periodic_payload["evidence_rubric"] = _case_evidence_rubric(
+        case_id="tiny_periodic_modular",
+        forecast=periodic_payload["forecast"],
+        observed_curve_classes=periodic_payload["observed_curve_classes"],
+        checkpoints=periodic_checkpoints,
+        causal_validation=periodic_payload["causal_validation"],
+        targeted_vs_random=periodic_payload["targeted_vs_random_ablation"],
+    )
     cases["tiny_periodic_modular"] = periodic_payload
 
     non_periodic_rows = _non_periodic_rows()
@@ -494,6 +576,18 @@ def run_real_tiny_suite(output_dir: Path | None = None) -> Dict[str, object]:
     non_periodic_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(
         non_periodic_payload["forecast"], non_periodic_checkpoints
     )
+    non_periodic_payload["targeted_vs_random_ablation"] = _targeted_vs_random_ablation(
+        non_periodic_model, non_hf, non_hs, non_hl
+    )
+    non_periodic_payload["evidence_rubric"] = _case_evidence_rubric(
+        case_id="tiny_nonperiodic_linear",
+        forecast=non_periodic_payload["forecast"],
+        observed_curve_classes=non_periodic_payload["observed_curve_classes"],
+        checkpoints=non_periodic_checkpoints,
+        causal_validation=non_periodic_payload["causal_validation"],
+        targeted_vs_random=non_periodic_payload["targeted_vs_random_ablation"],
+        control_case=True,
+    )
     cases["tiny_nonperiodic_linear"] = non_periodic_payload
 
     sparse_rows = _sparse_relational_rows()
@@ -518,6 +612,14 @@ def run_real_tiny_suite(output_dir: Path | None = None) -> Dict[str, object]:
     }
     sparse_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(
         sparse_payload["forecast"], sparse_checkpoints
+    )
+    sparse_payload["evidence_rubric"] = _case_evidence_rubric(
+        case_id="tiny_sparse_relational",
+        forecast=sparse_payload["forecast"],
+        observed_curve_classes=sparse_payload["observed_curve_classes"],
+        checkpoints=sparse_checkpoints,
+        causal_validation=sparse_payload["causal_validation"],
+        control_case=False,
     )
     cases["tiny_sparse_relational"] = sparse_payload
 
