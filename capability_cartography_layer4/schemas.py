@@ -16,6 +16,7 @@ class MockTensor:
 class MockTorch:
     float = "float"
     long = "long"
+    Tensor = MockTensor
     def tensor(self, data, dtype=None): return MockTensor(data)
     def randn(self, *args): return MockTensor()
     def diagonal(self, x): return MockTensor()

@@ -4,6 +4,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
+import numpy as np
+
 try:  # pragma: no cover - import fallback for script execution
     from .case_study import classify_metric_curve, classify_rmse_curve
     from .checkpointed_attention_discovery import RealCircuitDiscoveryResult, discover_stable_attention_circuit
@@ -45,7 +47,7 @@ class SmallTransformerCaseResult:
 
 class TinyAttentionSequenceModel:
     """
-    Small attention-style sequence model implemented in pure Python.
+    Small attention-style sequence model implemented with NumPy.
 
     This is intentionally narrow: one query route attends over a length-3 token
     sequence and regresses a periodic target score.
@@ -54,72 +56,58 @@ class TinyAttentionSequenceModel:
     def __init__(self, vocab_size: int = 17, dim: int = 4) -> None:
         self.vocab_size = vocab_size
         self.dim = dim
-        self.embeddings = []
+        self.embeddings = np.zeros((vocab_size, dim), dtype=float)
         for token in range(vocab_size):
             angle = 2.0 * math.pi * token / max(1, vocab_size)
-            self.embeddings.append(
+            self.embeddings[token] = np.asarray(
                 [
                     math.sin(angle),
                     math.cos(angle),
                     math.sin(2.0 * angle),
                     math.cos(2.0 * angle),
-                ]
+                ],
+                dtype=float,
             )
-        self.query = [0.12, -0.03, 0.07, 0.05]
-        self.readout = [0.11, 0.02, -0.04, 0.09]
+        self.query = np.asarray([0.12, -0.03, 0.07, 0.05], dtype=float)
+        self.readout = np.asarray([0.11, 0.02, -0.04, 0.09], dtype=float)
         self.bias = 0.0
-        self.position_encoding = [
-            [0.35, 0.0, 0.0, 0.0],
-            [0.0, 0.25, 0.0, 0.0],
-            [0.0, 0.0, 0.18, 0.0],
-        ]
+        self.position_encoding = np.asarray(
+            [
+                [0.35, 0.0, 0.0, 0.0],
+                [0.0, 0.25, 0.0, 0.0],
+                [0.0, 0.0, 0.18, 0.0],
+            ],
+            dtype=float,
+        )
 
     def snapshot(self) -> Dict[str, object]:
         return {
-            "embeddings": [list(row) for row in self.embeddings],
-            "query": list(self.query),
-            "readout": list(self.readout),
+            "embeddings": self.embeddings.copy(),
+            "query": self.query.copy(),
+            "readout": self.readout.copy(),
             "bias": self.bias,
         }
 
     def restore(self, state: Dict[str, object]) -> None:
-        self.embeddings = [list(row) for row in state["embeddings"]]
-        self.query = list(state["query"])
-        self.readout = list(state["readout"])
+        self.embeddings = np.asarray(state["embeddings"], dtype=float).copy()
+        self.query = np.asarray(state["query"], dtype=float).copy()
+        self.readout = np.asarray(state["readout"], dtype=float).copy()
         self.bias = float(state["bias"])
 
-    @staticmethod
-    def _dot(left: Sequence[float], right: Sequence[float]) -> float:
-        return sum(a * b for a, b in zip(left, right))
+    def _encode_batch(self, sequences: np.ndarray) -> np.ndarray:
+        encoded = self.embeddings[sequences]
+        return encoded + self.position_encoding[None, :, :]
 
-    @staticmethod
-    def _add(left: Sequence[float], right: Sequence[float]) -> List[float]:
-        return [a + b for a, b in zip(left, right)]
-
-    def _encode(self, sequence: Sequence[int]) -> List[List[float]]:
-        encoded: List[List[float]] = []
-        for position, token in enumerate(sequence):
-            encoded.append(self._add(self.embeddings[token], self.position_encoding[position]))
-        return encoded
-
-    def forward(self, sequence: Sequence[int], masked_positions: Optional[Sequence[int]] = None) -> Dict[str, object]:
-        encoded = self._encode(sequence)
-        scores: List[float] = []
-        mask = set(masked_positions or [])
-        for position, vector in enumerate(encoded):
-            if position in mask:
-                scores.append(-1e9)
-            else:
-                scores.append(self._dot(self.query, vector))
-        max_score = max(scores)
-        exps = [math.exp(score - max_score) if score > -1e8 else 0.0 for score in scores]
-        denom = sum(exps) or 1.0
-        attention = [value / denom for value in exps]
-        context = [
-            sum(attention[position] * encoded[position][axis] for position in range(len(encoded)))
-            for axis in range(self.dim)
-        ]
-        output = self._dot(self.readout, context) + self.bias
+    def forward_batch(self, sequences: np.ndarray, masked_positions: Optional[Sequence[int]] = None) -> Dict[str, object]:
+        encoded = self._encode_batch(sequences)
+        scores = encoded @ self.query
+        if masked_positions:
+            scores[:, list(masked_positions)] = -1e9
+        max_scores = np.max(scores, axis=1, keepdims=True)
+        exps = np.exp(scores - max_scores)
+        attention = exps / np.clip(np.sum(exps, axis=1, keepdims=True), 1e-9, None)
+        context = np.einsum("bp,bpd->bd", attention, encoded)
+        output = context @ self.readout + self.bias
         return {
             "score": output,
             "attention": attention,
@@ -127,43 +115,43 @@ class TinyAttentionSequenceModel:
             "encoded": encoded,
         }
 
+    def forward(self, sequence: Sequence[int], masked_positions: Optional[Sequence[int]] = None) -> Dict[str, object]:
+        batch = self.forward_batch(np.asarray([sequence], dtype=int), masked_positions=masked_positions)
+        return {
+            "score": float(batch["score"][0]),
+            "attention": batch["attention"][0].tolist(),
+            "context": batch["context"][0].tolist(),
+            "encoded": batch["encoded"][0].tolist(),
+        }
+
     def train_step(self, sequence: Sequence[int], target_score: float, learning_rate: float) -> None:
-        result = self.forward(sequence)
-        prediction = float(result["score"])
-        attention = list(result["attention"])
-        context = list(result["context"])
-        encoded = list(result["encoded"])
+        batch = self.forward_batch(np.asarray([sequence], dtype=int))
+        prediction = float(batch["score"][0])
+        attention = batch["attention"][0]
+        context = batch["context"][0]
+        encoded = batch["encoded"][0]
         error = prediction - target_score
         output_grad = 2.0 * error
-        context_grad = [output_grad * weight for weight in self.readout]
-        readout_grad = [output_grad * value for value in context]
+        context_grad = output_grad * self.readout
+        readout_grad = output_grad * context
         bias_grad = output_grad
 
-        attention_value_grads = [sum(context_grad[axis] * encoded[position][axis] for axis in range(self.dim)) for position in range(3)]
-        average_attention_grad = sum(attention[position] * attention_value_grads[position] for position in range(3))
-        score_grads = [
-            attention[position] * (attention_value_grads[position] - average_attention_grad) for position in range(3)
-        ]
+        attention_value_grads = encoded @ context_grad
+        average_attention_grad = float(np.sum(attention * attention_value_grads))
+        score_grads = attention * (attention_value_grads - average_attention_grad)
+        query_grad = encoded.T @ score_grads
 
-        query_grad = [0.0 for _ in range(self.dim)]
-        for position in range(3):
-            for axis in range(self.dim):
-                query_grad[axis] += score_grads[position] * encoded[position][axis]
-
-        for axis in range(self.dim):
-            self.query[axis] -= learning_rate * query_grad[axis]
-            self.readout[axis] -= learning_rate * readout_grad[axis]
+        self.query -= learning_rate * query_grad
+        self.readout -= learning_rate * readout_grad
         self.bias -= learning_rate * bias_grad
 
     def route_step(self, sequence: Sequence[int], target_attention: Sequence[float], learning_rate: float) -> None:
-        result = self.forward(sequence)
-        attention = list(result["attention"])
-        encoded = list(result["encoded"])
-        for axis in range(self.dim):
-            adjustment = 0.0
-            for position in range(len(attention)):
-                adjustment += (target_attention[position] - attention[position]) * encoded[position][axis]
-            self.query[axis] += learning_rate * adjustment
+        batch = self.forward_batch(np.asarray([sequence], dtype=int))
+        attention = batch["attention"][0]
+        encoded = batch["encoded"][0]
+        target = np.asarray(target_attention, dtype=float)
+        adjustment = encoded.T @ (target - attention)
+        self.query += learning_rate * adjustment
 
 
 def default_small_transformer_plan(base_dir: Path) -> SmallTransformerCheckpointPlan:
@@ -219,12 +207,10 @@ def _split_rows(rows: Sequence[Tuple[int, List[int], float, int]]) -> Tuple[List
 
 
 def _classification_accuracy(model: TinyAttentionSequenceModel, rows: Sequence[Tuple[int, List[int], float, int]], masked_positions=None) -> float:
-    correct = 0
-    for _, sequence, _, label in rows:
-        prediction = model.forward(sequence, masked_positions=masked_positions)["score"]
-        if (1 if prediction >= 0.0 else 0) == label:
-            correct += 1
-    return correct / max(1, len(rows))
+    sequences = np.asarray([row[1] for row in rows], dtype=int)
+    labels = np.asarray([row[3] for row in rows], dtype=float)
+    predictions = (model.forward_batch(sequences, masked_positions=masked_positions)["score"] >= 0.0).astype(float)
+    return float(np.mean(predictions == labels))
 
 
 def _thresholded_pass_rate(
@@ -233,29 +219,25 @@ def _thresholded_pass_rate(
     tolerance: float = 0.25,
     masked_positions=None,
 ) -> float:
-    passes = 0
-    for _, sequence, score, label in rows:
-        prediction = model.forward(sequence, masked_positions=masked_positions)["score"]
-        if (1 if prediction >= 0.0 else 0) == label and abs(prediction - score) <= tolerance:
-            passes += 1
-    return passes / max(1, len(rows))
+    sequences = np.asarray([row[1] for row in rows], dtype=int)
+    scores = np.asarray([row[2] for row in rows], dtype=float)
+    labels = np.asarray([row[3] for row in rows], dtype=float)
+    prediction = model.forward_batch(sequences, masked_positions=masked_positions)["score"]
+    passes = ((prediction >= 0.0).astype(float) == labels) & (np.abs(prediction - scores) <= tolerance)
+    return float(np.mean(passes))
 
 
 def _rmse(model: TinyAttentionSequenceModel, rows: Sequence[Tuple[int, List[int], float, int]], masked_positions=None) -> float:
-    mse = 0.0
-    for _, sequence, score, _ in rows:
-        prediction = model.forward(sequence, masked_positions=masked_positions)["score"]
-        mse += (prediction - score) ** 2
-    return math.sqrt(mse / max(1, len(rows)))
+    sequences = np.asarray([row[1] for row in rows], dtype=int)
+    scores = np.asarray([row[2] for row in rows], dtype=float)
+    prediction = model.forward_batch(sequences, masked_positions=masked_positions)["score"]
+    return float(np.sqrt(np.mean((prediction - scores) ** 2)))
 
 
 def _average_attention(model: TinyAttentionSequenceModel, rows: Sequence[Tuple[int, List[int], float, int]]) -> List[float]:
-    totals = [0.0, 0.0, 0.0]
-    for _, sequence, _, _ in rows:
-        attention = model.forward(sequence)["attention"]
-        for position in range(3):
-            totals[position] += attention[position]
-    return [total / max(1, len(rows)) for total in totals]
+    sequences = np.asarray([row[1] for row in rows], dtype=int)
+    attention = model.forward_batch(sequences)["attention"]
+    return np.mean(attention, axis=0).round(4).tolist()
 
 
 def _checkpoint_record(model: TinyAttentionSequenceModel, step: int, train_rows, heldout_rows) -> Dict[str, object]:

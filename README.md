@@ -26,6 +26,7 @@ Using the $(m,r,d,s^*)$ interface, CCL4 classifies the asymptotic regime of a ta
 Instead of treating the model as a black box, CCL4 tracks simple mechanistic proxies in checkpointed toy runs:
 -   **Fourier-style signals** in periodic modular tasks.
 -   **Circuit-completeness proxies** based on sparse weight structure and held-out interventions.
+-   **Rudimentary real circuit analysis** for linear feature bundles via feature ranking, Fourier scoring, and targeted-vs-random ablation in [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py).
 
 ### 3. Optional Quantum Analogy Layer
 CCL4 includes an optional interpretive layer that compares some modular-arithmetic circuits to Fourier-style motifs also discussed in quantum algorithms like **Shor's Algorithm** and the **Quantum Fourier Transform (QFT)**. In the current repo this is analogy only, not a validated equivalence claim.
@@ -43,8 +44,10 @@ In the current benchmark package, the periodic modular case is treated as mostly
 The current repo demonstrates a narrow package:
 - a registered pre-training forecast on frozen toy cases,
 - a checkpointed modular case study with metric masking,
+- a NumPy-only tiny-model benchmark path that does not require PyTorch for the active demos and suite,
 - simple held-out causal intervention,
 - a two-family small-transformer evidence bundle with one periodic family and one smooth control family,
+- a rudimentary feature-level circuit discovery path for structured linear bundles,
 - baseline comparisons on a frozen small benchmark.
 - a root [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) that records scope, claim coverage, and failure modes for the current evidence artifacts.
 - a frozen [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json) for the canonical small-transformer artifact package.
@@ -54,7 +57,7 @@ It does **not** yet demonstrate a general solution to Tao’s unpredictability p
 ### Methodological Arc: The Dual-Engine Pipeline
 The methodology currently implements a narrow dual-engine process:
 1.  **Forecasting Engine (Pre-training)**: Utilizes $(m,r,d,s^*)$ and metadata heuristics to predict trajectory classes on a frozen small benchmark.
-2.  **Mapping Engine (Post-training)**: Tracks checkpointed proxy signals and runs simple ablation/restoration checks on tiny benchmark models plus a two-family small-transformer bundle.
+2.  **Mapping Engine (Post-training)**: Tracks checkpointed proxy signals, runs simple ablation/restoration checks on NumPy tiny benchmark models, and performs rudimentary feature-level circuit analysis when structured feature bundles are available.
 3.  **Observability Layer**: Writes artifact-level `claim_coverage`, `failure_modes`, and provenance manifests so the repo’s evidence boundary is machine-readable.
 
 ## Research Arc
@@ -63,6 +66,8 @@ The current research arc is narrower and better instrumented than earlier repo d
 - move from broad historical rhetoric to frozen narrow benchmark cases,
 - separate `false unpredictability` from `real unpredictability`,
 - connect pre-training forecasts to post-training mechanism checks,
+- remove unnecessary active-path PyTorch dependency from the benchmarked demo and suite flows,
+- upgrade `circuit_discovery.py` from pure string heuristics to a rudimentary real analysis path for linear feature bundles,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
 
@@ -71,7 +76,7 @@ The resulting posture is: evidence-backed narrow forecasting plus narrow mechani
 ## Project Structure
 
 -   `regime_forecaster.py`: Logic for pre-training trajectory prediction.
--   `circuit_discovery.py`: Methods for mapping capabilities to internal circuits.
+-   `circuit_discovery.py`: Rudimentary feature-level circuit analysis plus heuristic fallbacks for unstructured demo inputs.
 -   `orchestration.py`: Unified pipeline for forecasting and verification.
 -   `schemas.py`: Data structures for records, forecasts, and circuit definitions.
 -   `demo.py`: Verification script across Scaling Laws, Transformers, and Modular Exponentiation.
@@ -88,7 +93,7 @@ The resulting posture is: evidence-backed narrow forecasting plus narrow mechani
 -   `PARAMETERS.md`: Operational definitions and uncertainty notes for `(m, r, d, s*)`.
 -   `TRANSFER.md`: Narrow statement of what SplitUP/Schur-inspired transfer does and does not justify in this repo.
 -   `ROADMAP.md`: File-by-file roadmap for moving the repo from framework sketch to evidence-backed package.
--   `small_transformer_case.py`: Implemented checkpointed two-family small-transformer benchmark with artifact outputs.
+-   `small_transformer_case.py`: Implemented NumPy checkpointed two-family small-transformer benchmark with artifact outputs.
 -   `checkpointed_attention_discovery.py`: Narrow discovery utilities for stable attention-route extraction and targeted-vs-random ablation summaries.
 
 ## Quick Start

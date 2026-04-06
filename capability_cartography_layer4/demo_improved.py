@@ -1,17 +1,4 @@
-try:
-    import torch
-    import torch.nn as nn
-except ImportError:
-    from capability_cartography_layer4.schemas import MockTorch
-    torch = MockTorch()
-    class MockNN:
-        class Module: pass
-        class Linear:
-            def __init__(self, *args): pass
-    nn = MockNN()
-
 from capability_cartography_layer4.orchestration import CCL4Pipeline
-from capability_cartography_layer4.schemas import TrajectoryType, VerdictType
 
 def run_improved_demo():
     print("="*80)

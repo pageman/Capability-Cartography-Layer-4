@@ -1,13 +1,3 @@
-try:
-    import torch
-    import torch.nn as nn
-except ImportError:
-    from .schemas import MockTorch
-    torch = MockTorch()
-    class MockNN:
-        class Module: pass
-    nn = MockNN()
-
 from typing import Dict, List, Optional
 from .schemas import MechanismCircuit, MechanismMoment, MechanismOperation, QuantumAnalogyAnnotation
 

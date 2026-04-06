@@ -12,6 +12,8 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 **The P04 Turning Point**: Earlier repo drafts described a much broader historical benchmark. The current repo no longer treats that as the evidentiary center. Instead, it centers frozen tiny cases, explicit falsifiers, narrow artifact-backed mechanism checks, and a deliverable manifest that freezes what was actually generated.
 
+**The Dependency Turn**: Earlier active paths still implicitly relied on PyTorch being installed even when the repo claimed graceful fallback behavior. The current repo has now moved the benchmarked demo and suite paths to NumPy-only implementations, making the end-to-end evidence package less fragile and better aligned with its portability claims.
+
 **The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
@@ -19,6 +21,9 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 > #### **Story Box 2: From One Mechanism Toy To A Small Evidence Bundle**
 > The repo now includes both checkpointed toy modular evidence and a two-family small-transformer bundle. The periodic family supports stable attention-route extraction, while the smooth control family prevents the repo from implying that every discovery result must look abrupt or Fourier-like.
+
+> #### **Story Box 3: From Pure Heuristic Labeling To Rudimentary Real Analysis**
+> Earlier versions of `circuit_discovery.py` mapped capability names to canned circuit labels. The current repo still does not perform full ACDC/SAE graph recovery, but it now does one real thing: when given a structured linear feature bundle, it ranks components by alignment, computes a real Fourier score, and compares targeted ablation against random control ablation.
 
 ---
 
@@ -32,9 +37,9 @@ The CCL4 pipeline is a dual-engine system:
     -   **Output**: Trajectory Forecast (Power-law, Emergent, Step-function, Hybrid).
 
 2.  **Mapping Engine (Post-training)**:
-    -   **Input**: Model weights and checkpoint history.
-    -   **Process**: checkpointed proxy discovery on tiny models plus a narrow implemented small-transformer attention-route extraction across two synthetic families.
-    -   **Output**: benchmark-specific circuit summaries, causal verification via targeted-vs-random ablation, and explicit artifact-level `claim_coverage` / `failure_modes`.
+    -   **Input**: Model weights, structured feature bundles, and checkpoint history.
+    -   **Process**: checkpointed proxy discovery on tiny NumPy models, rudimentary feature-level circuit analysis for structured linear bundles, plus a narrow implemented small-transformer attention-route extraction across two synthetic families.
+    -   **Output**: benchmark-specific circuit summaries, causal verification via targeted-vs-random ablation, real Fourier scores for linear bundles, and explicit artifact-level `claim_coverage` / `failure_modes`.
 
 3.  **Observability Layer**:
     -   **Input**: Generated artifacts and repo test runs.
@@ -46,6 +51,9 @@ The CCL4 pipeline is a dual-engine system:
 
 > #### **Method Box 2: Intrinsic Dimension as a Pre-training Proxy**
 > To predict "Step-functions" (like AlexNet), we implemented the **ID-Ratio** ($IntrinsicDimension / ParamCount$). A high ID-Ratio (>0.1) combined with high relational depth (Depth > 3) is the primary precursor to sudden, non-linear capability onset.
+
+> #### **Method Box 3: Rudimentary Circuit Analysis Contract**
+> The current `circuit_discovery.py` no longer only emits canned labels. On structured linear bundles it now: (1) ranks features by alignment with the target score, (2) computes a Fourier signature from actual values, and (3) measures targeted-vs-random ablation drop through a minimal model adapter. This is still narrow analysis, but it is no longer purely descriptive.
 
 ---
 
@@ -62,4 +70,4 @@ To improve narrow-benchmark credibility, the following end-to-end enhancements w
 ---
 
 ### 5. Conclusion: Predicting the "Unpredictable"
-CCL4 now supports a narrower conclusion. Some surprising jumps can be reframed as observation effects, and some controlled benchmark families can be forecast and tracked with checkpointed mechanism evidence. The repo now records those claims with explicit coverage, failure modes, and deliverable provenance. The stronger goal of general capability prediction across tasks remains open.
+CCL4 now supports a narrower conclusion. Some surprising jumps can be reframed as observation effects, and some controlled benchmark families can be forecast and tracked with checkpointed mechanism evidence. The repo now records those claims with explicit coverage, failure modes, deliverable provenance, and an active benchmark path that no longer depends on PyTorch. The stronger goal of general capability prediction across tasks remains open.

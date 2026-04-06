@@ -1,17 +1,12 @@
-try:
-    import torch
-    import torch.nn as nn
-except ImportError:
-    from capability_cartography_layer4.schemas import MockTorch
-    torch = MockTorch()
-    class MockNN:
-        class Module: pass
-        class Linear:
-            def __init__(self, *args): pass
-    nn = MockNN()
+import numpy as np
 
 from capability_cartography_layer4.orchestration import CCL4Pipeline
-from capability_cartography_layer4.schemas import TrajectoryType, VerdictType
+
+
+class NumpyLinearPlaceholder:
+    def __init__(self, in_features: int, out_features: int) -> None:
+        self.weight = np.zeros((out_features, in_features), dtype=float)
+        self.bias = np.zeros(out_features, dtype=float)
 
 def run_demo():
     print("="*80)
@@ -41,8 +36,8 @@ def run_demo():
             "novel_architecture": True,
             "compressibility_gap": 15.0
         },
-        "model": nn.Linear(64, 64), 
-        "data": torch.randn(1, 10)
+        "model": NumpyLinearPlaceholder(64, 64),
+        "data": np.zeros((1, 10), dtype=float)
     }
 
     # Case 3: P31 Modular Exponentiation (Grokking)
@@ -57,8 +52,8 @@ def run_demo():
             "novel_architecture": False,
             "compressibility_gap": 35.0
         },
-        "model": nn.Linear(128, 128),
-        "data": torch.randn(1, 4)
+        "model": NumpyLinearPlaceholder(128, 128),
+        "data": np.zeros((1, 4), dtype=float)
     }
 
     print("\n[STEP 1] Running P22 Scaling Laws (Predictive Only)")

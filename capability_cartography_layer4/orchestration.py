@@ -1,14 +1,4 @@
-try:
-    import torch
-    import torch.nn as nn
-except ImportError:
-    from .schemas import MockTorch
-    torch = MockTorch()
-    class MockNN:
-        class Module: pass
-    nn = MockNN()
-
-from typing import List, Dict, Optional
+from typing import Any, Dict, List, Optional
 from .schemas import CCL4Record, VerdictType
 from .regime_forecaster import RegimeForecaster
 from .circuit_discovery import CircuitDiscovery
@@ -25,8 +15,8 @@ class CCL4Pipeline:
 
     def run_record(self, paper_id: str, capability_id: str, 
                    regime_params: Dict, task_metadata: Dict,
-                   model: Optional[nn.Module] = None,
-                   data: Optional[torch.Tensor] = None) -> CCL4Record:
+                   model: Optional[Any] = None,
+                   data: Optional[Any] = None) -> CCL4Record:
         """Runs the complete CCL4 process for a single record."""
         
         # 1. Pre-training: Regime Classification and Forecasting
@@ -45,6 +35,7 @@ class CCL4Pipeline:
         verdict_confidence = 0.0
         
         if model is not None and data is not None:
+            self.discovery.model = model
             circuit = self.discovery.identify_circuit(capability_id, data)
 
             # Add heuristic, interpretive analogies without changing the core circuit type.
