@@ -31,6 +31,16 @@ class BenchmarkToolTests(unittest.TestCase):
             self.assertEqual(control["evidence_rubric"]["overall_evidence_grade"], "strong")
             self.assertTrue(control["evidence_rubric"]["supports_control_claim"])
 
+    def test_sparse_case_is_clean_falsifier(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = run_real_tiny_suite(Path(temp_dir))
+            sparse = result["cases"]["tiny_sparse_relational"]
+            self.assertEqual(sparse["evidence_rubric"]["overall_evidence_grade"], "weak")
+            self.assertEqual(sparse["mechanism_discovery"]["circuit_type"], "unknown")
+            self.assertTrue(sparse["falsifier_summary"]["forecast_miss"])
+            self.assertTrue(sparse["falsifier_summary"]["mechanism_missing"])
+            self.assertTrue(sparse["falsifier_summary"]["causal_effect_missing"])
+
 
 if __name__ == "__main__":
     unittest.main()

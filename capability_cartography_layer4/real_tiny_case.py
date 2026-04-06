@@ -534,7 +534,16 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
             "targeted_drop": sparse_circuit.analysis_metadata.get("targeted_drop", 0.0) or 0.0,
             "random_drop": sparse_circuit.analysis_metadata.get("random_drop", 0.0) or 0.0,
         },
+        "falsifier_summary": {
+            "forecast_miss": True,
+            "mechanism_missing": sparse_circuit.type.value == "unknown",
+            "causal_effect_missing": False,
+        },
     }
+    sparse_payload["falsifier_summary"]["causal_effect_missing"] = (
+        sparse_payload["causal_validation"]["accuracy_drop_from_ablation"] <= 0.05
+        and sparse_payload["targeted_vs_random_ablation"]["targeted_drop"] <= 0.05
+    )
     sparse_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(sparse_payload["forecast"], sparse_checkpoints)
     sparse_payload["evidence_rubric"] = _case_evidence_rubric(
         case_id="tiny_sparse_relational",

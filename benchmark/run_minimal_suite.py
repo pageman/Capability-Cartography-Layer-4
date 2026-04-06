@@ -71,6 +71,7 @@ def _classify_unpredictability(summary: dict) -> dict:
             "real_unpredictability_remaining": [
                 "sparse relational case misses the forecast even after metric controls",
                 "current feedback loop adjusts confidence but does not fully explain the miss mechanistically",
+                "sparse relational case now serves as a cleaner falsifier: no informative circuit is isolated and ablation remains non-diagnostic",
             ],
             "strategy_passes": {
                 "got": "Generated candidate explanations for forecast misses and metric jumps.",

@@ -77,6 +77,7 @@ The current research arc is narrower and better instrumented than earlier repo d
 - upgrade `circuit_discovery.py` from pure string heuristics to a rudimentary real analysis path for linear feature bundles,
 - extend that discovery path so raw NumPy matrices with compatible linear/readout models can be converted into inferred feature bundles instead of dropping immediately to canned labels,
 - strengthen the non-periodic tiny control so it now passes the shared rubric as a smooth calibrated control instead of a weak residual case,
+- sharpen the sparse relational miss into a cleaner falsifier by surfacing it as a forecast miss with no informative circuit and non-diagnostic ablation,
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,

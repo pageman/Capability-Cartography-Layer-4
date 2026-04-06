@@ -20,6 +20,8 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 **The Control Clarification Turn**: Earlier shared-rubric runs left the non-periodic tiny control graded as weak because it was effectively being judged against periodic-family criteria. The current repo now treats that family as a true smooth control: it uses a cleaner monotonic target, a representative held-out split, held-out score calibration metrics, and a control-specific grading rule that rewards low periodicity and the absence of special targeted-ablation effects.
 
+**The Falsifier Clarification Turn**: The sparse relational family is no longer allowed to masquerade as a failed periodic discovery. The current repo now treats it as an explicit falsifier: forecast miss remains, the discovery engine reports no informative circuit under the current contract, and targeted ablation remains non-diagnostic. This is a better scientific outcome than a noisy pseudo-mechanism.
+
 **The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
@@ -39,6 +41,9 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 > #### **Story Box 6: The Control Strengthening Pass**
 > The non-periodic tiny family is no longer just “not periodic.” It is now a positive smooth control. Its held-out split spans the score range, its outputs stay highly calibrated, its monotonic agreement remains high, and targeted ablation is no more destructive than matched random ablation. That makes the contrast with the periodic case cleaner and the benchmark more scientifically useful.
+
+> #### **Story Box 7: The Falsifier Cleanup**
+> The sparse relational family used to fail in a muddled way: weak evidence, but still a misleading circuit label. The repo now treats that family more honestly. It is a falsifier case with a forecast miss, no informative circuit under the current discovery contract, and no meaningful causal leverage from ablation. That is a stronger benchmark artifact because it says exactly where the current theory stops.
 
 ---
 

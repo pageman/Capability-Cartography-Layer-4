@@ -21,7 +21,13 @@ class CircuitDiscovery:
             selected_names = [component_names[index] for index in top_indices]
             fourier_signature = self._bundle_fourier_signature(features, scores)
             monotonic_signal = self._bundle_monotonic_signal(features, scores)
-            circuit_type = self._classify_circuit_type(capability_id, fourier_signature, monotonic_signal)
+            max_component_score = max(top_scores, default=0.0)
+            circuit_type = self._classify_circuit_type(
+                capability_id,
+                fourier_signature,
+                monotonic_signal,
+                max_component_score=max_component_score,
+            )
             mechanism_circuit = self._build_feature_circuit(selected_names, top_scores)
 
             targeted_drop = None
@@ -85,7 +91,13 @@ class CircuitDiscovery:
             selected_names = [component_names[index] for index in top_indices]
             fourier_signature = self._bundle_fourier_signature(features, scores)
             monotonic_signal = self._bundle_monotonic_signal(features, scores)
-            circuit_type = self._classify_circuit_type(capability_id, fourier_signature, monotonic_signal)
+            max_component_score = max(top_scores, default=0.0)
+            circuit_type = self._classify_circuit_type(
+                capability_id,
+                fourier_signature,
+                monotonic_signal,
+                max_component_score=max_component_score,
+            )
             mechanism_circuit = self._build_feature_circuit(selected_names, top_scores)
             targeted_drop, random_drop = self._ablation_drops(selected_names, self.model, features, labels, component_names)
             return CircuitDefinition(
@@ -244,7 +256,15 @@ class CircuitDiscovery:
         negative = float(np.mean(non_zero < 0.0))
         return max(positive, negative)
 
-    def _classify_circuit_type(self, capability_id: str, fourier_signature: float, monotonic_signal: float = 0.0) -> CircuitType:
+    def _classify_circuit_type(
+        self,
+        capability_id: str,
+        fourier_signature: float,
+        monotonic_signal: float = 0.0,
+        max_component_score: float = 0.0,
+    ) -> CircuitType:
+        if max_component_score <= 1e-4:
+            return CircuitType.UNKNOWN
         if "induction" in capability_id or "in-context" in capability_id:
             return CircuitType.INDUCTION
         if ("nonperiodic" in capability_id or "linear" in capability_id) and monotonic_signal >= 0.9:
@@ -276,6 +296,8 @@ class CircuitDiscovery:
         random_drop: Optional[float],
     ) -> str:
         base = f"Top components: {', '.join(component_names)}; Fourier signature={fourier_signature:.3f}."
+        if circuit_type == CircuitType.UNKNOWN:
+            return f"{base} No informative circuit was isolated under the current discovery contract."
         if targeted_drop is not None and random_drop is not None:
             return f"{base} Targeted ablation drop={targeted_drop:.3f}; random control drop={random_drop:.3f}."
         if circuit_type == CircuitType.FOURIER:
