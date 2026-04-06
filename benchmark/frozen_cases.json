@@ -1,0 +1,27 @@
+{
+  "suite_id": "ccl4-minimum-viable-pass-v1",
+  "description": "Frozen small benchmark for the narrow evidence-backed CCL4 package.",
+  "cases": [
+    {
+      "case_id": "tiny_periodic_modular",
+      "kind": "periodic",
+      "split_rule": "train residues are x mod 3 != 0",
+      "forecast_label": "step-function",
+      "notes": "Primary case used for masking, checkpoint growth, and causal intervention."
+    },
+    {
+      "case_id": "tiny_nonperiodic_linear",
+      "kind": "non_periodic",
+      "split_rule": "train residues are x mod 3 != 0",
+      "forecast_label": "power-law",
+      "notes": "Control case where Fourier-style signal should stay low and metric masking should weaken."
+    },
+    {
+      "case_id": "tiny_sparse_relational",
+      "kind": "sparse_relational",
+      "split_rule": "frozen synthetic support split",
+      "forecast_label": "emergent",
+      "notes": "Stress case for the forecasting rules and baseline comparison."
+    }
+  ]
+}

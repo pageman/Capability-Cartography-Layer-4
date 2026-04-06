@@ -9,9 +9,10 @@ except ImportError:
     nn = MockNN()
 
 from typing import List, Dict, Optional
-from .schemas import CCL4Record, VerdictType, RegimeProfile, TrajectoryForecast
+from .schemas import CCL4Record, VerdictType
 from .regime_forecaster import RegimeForecaster
 from .circuit_discovery import CircuitDiscovery
+from .quantum_bridge import QuantumAnalogyBridge
 
 class CCL4Pipeline:
     """Orchestrates Predictive Forecasting and Mechanistic Analysis."""
@@ -20,6 +21,7 @@ class CCL4Pipeline:
         self.config = config or {}
         self.forecaster = RegimeForecaster(config)
         self.discovery = CircuitDiscovery()
+        self.bridge = QuantumAnalogyBridge(config)
 
     def run_record(self, paper_id: str, capability_id: str, 
                    regime_params: Dict, task_metadata: Dict,
@@ -37,14 +39,24 @@ class CCL4Pipeline:
         
         forecast = self.forecaster.forecast(regime, task_metadata)
         
-        # 2. Post-training: Circuit Discovery and Verification (if model exists)
+        # 2. Post-training: Circuit Discovery and Verification
         circuit = None
         verdict = VerdictType.UNDETECTED
         verdict_confidence = 0.0
         
-        # In mock mode, model is an instance of MockNN.Module (if not None)
         if model is not None and data is not None:
             circuit = self.discovery.identify_circuit(capability_id, data)
+
+            # Add heuristic, interpretive analogies without changing the core circuit type.
+            mechanism_circuit = self.bridge.build_mechanism_circuit(capability_id, circuit.components)
+            if circuit.mechanism_circuit is None:
+                circuit.mechanism_circuit = mechanism_circuit
+            else:
+                circuit.mechanism_circuit.interpretive_quantum_analogies = (
+                    mechanism_circuit.interpretive_quantum_analogies
+                )
+                circuit.mechanism_circuit.analogy_summary = mechanism_circuit.analogy_summary
+
             # Simulated causal verification
             ablation_drop = self.discovery.compute_ablation_impact(circuit, model, data)
             
@@ -69,7 +81,8 @@ class CCL4Pipeline:
             verdict_confidence=verdict_confidence,
             provenance={
                 "forecaster_version": "v1.0-Schur2026",
-                "discovery_version": "v1.0-Mechanistic"
+                "discovery_version": "v1.0-Mechanistic",
+                "bridge_version": "v1.1-Quantum-Analogy-Heuristic"
             }
         )
 

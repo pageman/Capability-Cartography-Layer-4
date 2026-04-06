@@ -2,7 +2,7 @@
 
 In March 2026, Terence Tao observed that we lack reliable principles for predicting model behavior in advance. He noted that natural language and AI capabilities live in an "intermediate regime" that is neither noise nor order.
 
-Capability Cartography Layer 4 (CCL4) provides a direct response to this puzzle by synthesizing **Regime-Theoretic Forecasting** with **Mechanistic Circuit Discovery**.
+Capability Cartography Layer 4 (CCL4) now offers a narrow benchmark response to part of this puzzle by synthesizing **Regime-Theoretic Forecasting** with **Checkpointed Mechanistic Discovery**.
 
 ## 1. Predictability via Regime Parameters $(m,r,d,s^*)$
 Tao's "intermediate regime" is mathematically formalized in CCL4 through the Schur et al. (2026) framework. By estimating these parameters *before training*, we convert Tao's mystery into a predictable taxonomy:
@@ -10,15 +10,11 @@ Tao's "intermediate regime" is mathematically formalized in CCL4 through the Sch
 -   **If $d > m$ and $s^* \ll d$**: Potential Emergence (Sparse Regime).
 -   **If $m \to \infty$ with low $r$**: Bias-correction (SplitUP) is necessary, and laws are scale-invariant (Middle Regime).
 
-## 2. From "Matrix Multiplication" to "Quantum-Fourier Circuits"
-Tao observed that the linear algebra of LLMs is not exotic, yet the performance is mysterious. CCL4 addresses this through the **Quantum-Fourier Connection**. 
-We hypothesize that transformers are not merely multiplying matrices; they are independently discovering **Fourier-based computational strategies** — the same mathematics used in the Quantum Fourier Transform (QFT). This provides a mechanistic explanation for why "simple" linear algebra can implement complex, sudden capabilities like modular arithmetic or grokking.
+## 2. From "Matrix Multiplication" to Fourier-Structured Circuits
+Tao observed that the linear algebra of LLMs is not exotic, yet the performance is mysterious. CCL4 addresses part of this through a Fourier-structured modular case study. The current repository includes an optional **Quantum Analogy** layer, but the evidentiary core is still the claim that models can develop Fourier-like computational structure before a coarse metric visibly jumps.
 
 ## 3. Pre-training Forecasting Results
-Validation on the **Sutskever-30** benchmark demonstrates that capability trajectories are predictable from paper metadata and task structure alone (96.7% accuracy):
--   **AlexNet (P07)**: Correctly predicted as a Step-function due to hardware constraints and compressibility gaps.
--   **Transformer (P19)**: Correctly predicted as Emergent due to relational depth and novel self-attention circuitry.
--   **Scaling Laws (P22)**: Correctly predicted as a Power-law within the Kaplan regime.
+Earlier repo drafts described a broader **Sutskever-30** style validation. The current evidence-backed package is narrower: it demonstrates frozen tiny-case forecasting and a checkpointed periodic case study rather than a broad historical benchmark result.
 
 ## Conclusion
-Layer 4 establishes that AI behavior is not an unpredictable black box. By classifying the task regime before training and mapping the circuit mechanism during/after training, we provide the "reliable principles" that Tao identified as the field's central need.
+Layer 4 now offers a concrete narrow case study rather than a general solution. By classifying one task regime before training and tracking one toy mechanism during training, the repo shows a plausible path toward the "reliable principles" Tao identified, but not a complete validation of them.

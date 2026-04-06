@@ -46,7 +46,7 @@ def run_demo():
     }
 
     # Case 3: P31 Modular Exponentiation (Grokking)
-    # Regime: Middle Regime, Fourier Circuits, Quantum Bridge
+    # Regime: Middle Regime, Fourier Circuits, Quantum Analogy Bridge
     p31_params = {
         "paper_id": "P31",
         "capability_id": "modular_exponentiation",
@@ -75,7 +75,7 @@ def run_demo():
     print(f"  Circuit:  {r2.circuit.type.value if r2.circuit else 'None'}")
     print(f"  Verdict:  {r2.verdict.value}")
 
-    print("\n[STEP 3] Running P31 Modular Exponentiation (Quantum-Fourier Bridge)")
+    print("\n[STEP 3] Running P31 Modular Exponentiation (Quantum Analogy Bridge)")
     r3 = pipeline.run_record(**p31_params)
     print(f"  Regime:   {r3.regime.regime_label}")
     print(f"  Forecast: {r3.forecast.type.value} (Step-function due to gap)")

@@ -1,0 +1,49 @@
+schema_version: 1
+generated_by: "manual_repo_snapshot"
+generated_at: "2026-04-06"
+repo_checks:
+  compileall:
+    command: "PYTHONPATH=/Users/hifi/Capability-Cartography-Layer-4 python3 -m compileall capability_cartography_layer4 benchmark"
+    passed: true
+  unittest:
+    command: "PYTHONPATH=/Users/hifi/Capability-Cartography-Layer-4 python3 -m unittest discover -s tests -p 'test_*.py'"
+    passed: true
+  minimal_suite:
+    command: "PYTHONPATH=/Users/hifi/Capability-Cartography-Layer-4 python3 benchmark/run_minimal_suite.py"
+    passed: true
+artifacts:
+  minimal_suite:
+    path: "artifacts/minimal_suite/suite_summary.json"
+    present: true
+    scope: "frozen tiny-case benchmark, metric ablation, baselines, and feedback classification"
+    claim_coverage: "medium"
+    measured_regime: "three frozen toy cases with coarse/fine metrics and forecast registration"
+    failure_modes:
+      - "too small to support general cross-task prediction"
+      - "mechanistic evidence is proxy-level outside the narrow periodic cases"
+  small_transformer_case:
+    path: "artifacts/small_transformer_case/summary_report.md"
+    present: true
+    scope: "two-family small-transformer checkpointed artifact bundle with stable attention-route extraction"
+    claim_coverage: "low-to-medium"
+    measured_regime: "two deterministic synthetic sequence families with held-out splits, ablation logs, and deliverable manifest"
+    failure_modes:
+      - "artifact bundle does not establish frontier-model or large-model circuit discovery"
+      - "ablation comparison remains exploratory and can be mixed across families"
+      - "held-out accuracy and curve class remain insufficient evidence for general mechanistic theory"
+claims:
+  forecasting_narrow_benchmark:
+    status: "replicated"
+    evidence: "artifacts/minimal_suite/suite_summary.json"
+  false_vs_real_unpredictability_split:
+    status: "replicated"
+    evidence: "artifacts/minimal_suite/suite_summary.json"
+  schur_transfer_scope:
+    status: "operational_heuristic"
+    evidence: "TRANSFER.md"
+  small_transformer_discovery:
+    status: "preliminary"
+    evidence: "artifacts/small_transformer_case/"
+  frontier_model_graph_recovery:
+    status: "planned"
+    evidence: "ROADMAP.md"

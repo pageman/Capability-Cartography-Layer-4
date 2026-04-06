@@ -10,7 +10,7 @@ class RegimeForecaster:
     def forecast(self, regime: RegimeProfile, task_metadata: Dict) -> TrajectoryForecast:
         """
         Main forecasting logic: Regime -> Trajectory Type.
-        Refined with improvements 1-5 to achieve 100% accuracy on historical corpus.
+        Refined with heuristics that now support the repo's frozen narrow benchmark package.
         """
         # --- Improvement 1: Content-Aware Empirical Detection (The P04 Fix) ---
         has_empirical_results = task_metadata.get("has_empirical_results", False)

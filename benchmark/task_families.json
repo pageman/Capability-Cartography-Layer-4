@@ -1,0 +1,72 @@
+{
+  "suite_id": "ccl4-task-family-scaffold-v1",
+  "description": "Scaffold for moving from frozen tiny cases to held-out task-family prediction.",
+  "families": [
+    {
+      "family_id": "periodic_modular",
+      "status": "implemented_narrowly",
+      "goal": "Measure false unpredictability via metric-dependent jumps and early Fourier-style mechanism formation.",
+      "candidate_tasks": [
+        "modular_threshold_classification",
+        "modular_addition_small_vocab",
+        "modular_comparison"
+      ],
+      "expected_risks": [
+        "metric artifacts dominate the apparent jump",
+        "mechanism may be overfitted to handcrafted periodic features"
+      ]
+    },
+    {
+      "family_id": "smooth_nonperiodic",
+      "status": "implemented_narrowly",
+      "goal": "Provide a control family where the same metrics should look smooth and Fourier-style signals should stay low.",
+      "candidate_tasks": [
+        "linear_threshold_regression",
+        "monotone score prediction"
+      ],
+      "expected_risks": [
+        "thresholded metrics can still introduce mild artifacts",
+        "smooth tasks may be too easy to stress the forecasting rules"
+      ]
+    },
+    {
+      "family_id": "sparse_relational",
+      "status": "implemented_as_failure_case",
+      "goal": "Track current theory misses and separate real unpredictability from metric artifacts.",
+      "candidate_tasks": [
+        "majority_of_bits",
+        "small compositional reasoning"
+      ],
+      "expected_risks": [
+        "forecast misses persist after metric controls",
+        "no early mechanistic signal appears"
+      ]
+    },
+    {
+      "family_id": "small_transformer_circuit",
+      "status": "planned",
+      "goal": "Upgrade from proxy circuits to checkpointed transformer subgraph discovery with targeted ablations.",
+      "candidate_tasks": [
+        "tiny_transformer_modular_arithmetic",
+        "tiny_transformer_comparison_reasoning"
+      ],
+      "expected_risks": [
+        "checkpoint handling is heavier than current tiny models",
+        "discovered circuits may remain unstable across seeds"
+      ]
+    },
+    {
+      "family_id": "heldout_family_transfer",
+      "status": "planned",
+      "goal": "Test whether regime descriptors and feedback rules transfer to a family not used in rule tuning.",
+      "candidate_tasks": [
+        "symbolic_sequence_transduction",
+        "tiny algorithmic recall"
+      ],
+      "expected_risks": [
+        "family-level generalization remains weak",
+        "current Schur-inspired descriptors may not transfer cleanly"
+      ]
+    }
+  ]
+}

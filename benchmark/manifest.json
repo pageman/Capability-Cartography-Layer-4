@@ -1,0 +1,38 @@
+{
+  "benchmark_id": "ccl4-minimal-case-study-v1",
+  "description": "Minimal end-to-end benchmark package for evaluating whether CCL4 can link pre-training forecasting, observation masking, mechanistic growth, and causal validation on a single modular task family.",
+  "case_studies": [
+    {
+      "case_id": "modular_masking_case",
+      "task_family": "periodic modular threshold classification",
+      "forecast_target": "trajectory_class",
+      "forecast_registered_before_training": true,
+      "observed_signals": [
+        "coarse_accuracy",
+        "fine_rmse",
+        "fourier_signature",
+        "circuit_completeness",
+        "heldout_coarse_accuracy",
+        "heldout_fine_rmse"
+      ],
+      "causal_validation": [
+        "feature_ablation",
+        "feature_restoration"
+      ],
+      "success_criteria": {
+        "forecast_matches_observed_curve_class": true,
+        "coarse_metric_shows_late_jump": true,
+        "fine_metric_improves_before_jump": true,
+        "mechanistic_signals_increase_over_training": true,
+        "ablation_drop_minimum": 0.25,
+        "restoration_recovery_minimum": 0.2
+      },
+      "artifacts": [
+        "artifacts/minimal_case_study/forecast_registration.json",
+        "artifacts/minimal_case_study/checkpoint_metrics.json",
+        "artifacts/minimal_case_study/causal_validation.json",
+        "artifacts/minimal_case_study/summary_report.md"
+      ]
+    }
+  ]
+}

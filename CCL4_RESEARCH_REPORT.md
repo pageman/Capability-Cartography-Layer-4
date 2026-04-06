@@ -2,27 +2,27 @@
 ## Predictive Forecasting & Mechanistic Causal Analysis
 
 ### 1. Executive Summary
-Capability Cartography Layer 4 (CCL4) represents the "Final Consolidation" of the Capability Cartography hierarchy. While prior layers focused on post-hoc measurement (L1), symptom classification (L2), and statistical causal explanation (L3), CCL4 achieves **Predictive Sovereignty**. It enables researchers to forecast AI capability trajectories *before* training begins and to reverse-engineer the internal **Circuits** that implement those capabilities after emergence.
+Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchmark consolidation layer. While prior layers focused on post-hoc measurement (L1), symptom classification (L2), and statistical causal explanation (L3), the current repo adds a bounded forecasting package plus checkpointed toy and small-transformer discovery cases.
 
 ---
 
-### 2. The Narrative Arc: From Measurement to Mastery
+### 2. The Narrative Arc: From Measurement to Observable Narrow Evidence
 
-**The "Why" of CCL4**: The central mystery of modern AI is its unpredictability. In March 2026, Terence Tao noted that we lack "reliable principles" to predict model behavior. CCL4 is the direct response to this need. It moves the project from "Diagnostic" (explaining why it failed) to "Predictive" (knowing when it will succeed).
+**The "Why" of CCL4**: The central mystery of modern AI is its unpredictability. In March 2026, Terence Tao noted that we lack "reliable principles" to predict model behavior. The current repo addresses a narrow slice of that problem: how to register small benchmark forecasts, distinguish some false unpredictability from real unpredictability, and attach checkpointed mechanism evidence to limited benchmark families with explicit observability artifacts.
 
-**The P04 Turning Point**: The research began with a 96.7% accuracy rate. The failure mode was **P04 (Hinton & Van Camp 1993)**, which was misclassified because the system relied on the "cover of the book" (metadata). By implementing **Empirical Component Detection**, we moved from "Shallow Metadata" to "Deep Intent," achieving 100% historical accuracy.
+**The P04 Turning Point**: Earlier repo drafts described a much broader historical benchmark. The current repo no longer treats that as the evidentiary center. Instead, it centers frozen tiny cases, explicit falsifiers, narrow artifact-backed mechanism checks, and a deliverable manifest that freezes what was actually generated.
 
-**The Quantum Bridge**: The most profound discovery of the CCL4 session is the **Quantum-Fourier Connection**. In modular exponentiation tasks, transformers do not merely "learn" the result; they implement **Fourier-based circuits**—the exact classical analogue of the **Quantum Fourier Transform (QFT)** used in **Shor's Algorithm**.
+**The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
 > Historically, P04 was viewed as a purely theoretical paper on MDL (Minimum Description Length). CCL4's initial failure to classify it as a "Power-law" revealed a bias in our forecasting logic: we were weighting Publication Date and Title over the presence of MNIST experiments. By adding an "Empirical Override," we taught the framework that even a "Theory" paper can be a "Power-law" prototype if it contains a dataset.
 
-> #### **Story Box 2: The Quantum-Fourier Mirror**
-> When a model "groks" modular arithmetic, it is essentially reinventing the mathematical core of quantum computing. We discovered that the internal representation is a periodic, trigonometric mapping. This suggests that the "simplicity" of transformer linear algebra is actually a gateway to "Quantum-Classical Algorithms"—a finding that bridges AI interpretability with Quantum Information Theory.
+> #### **Story Box 2: From One Mechanism Toy To A Small Evidence Bundle**
+> The repo now includes both checkpointed toy modular evidence and a two-family small-transformer bundle. The periodic family supports stable attention-route extraction, while the smooth control family prevents the repo from implying that every discovery result must look abrupt or Fourier-like.
 
 ---
 
-### 3. The Methodological Arc: The End-to-End Pipeline
+### 3. The Methodological Arc: The End-to-End Pipeline With Observability
 
 The CCL4 pipeline is a dual-engine system:
 
@@ -33,8 +33,13 @@ The CCL4 pipeline is a dual-engine system:
 
 2.  **Mapping Engine (Post-training)**:
     -   **Input**: Model weights and checkpoint history.
-    -   **Process**: ACDC (Automated Circuit Discovery) and SAE (Sparse Autoencoders).
-    -   **Output**: Mechanistic Circuit Definition and Causal Verification.
+    -   **Process**: checkpointed proxy discovery on tiny models plus a narrow implemented small-transformer attention-route extraction across two synthetic families.
+    -   **Output**: benchmark-specific circuit summaries, causal verification via targeted-vs-random ablation, and explicit artifact-level `claim_coverage` / `failure_modes`.
+
+3.  **Observability Layer**:
+    -   **Input**: Generated artifacts and repo test runs.
+    -   **Process**: root verification ledger plus deliverable manifest generation.
+    -   **Output**: `verification.yaml`, `deliverable_manifest.json`, and machine-readable scope boundaries for each evidence package.
 
 > #### **Method Box 1: (m, r, d, s*) Regime Boundary Optimization**
 > Based on a Meta-Sweep of 30 foundational papers, we optimized the boundaries for the "Middle Regime." We found that the transition from Classical to Middle regimes occurs at $r=15.0$ (samples per environment), not $20.0$. This refined boundary significantly improved the accuracy of our "Scale Transfer Invariance" flags.
@@ -46,7 +51,7 @@ The CCL4 pipeline is a dual-engine system:
 
 ### 4. Technical Consolidation: The Five Improvements
 
-To achieve the 100% accuracy milestone, the following end-to-end enhancements were implemented:
+To improve narrow-benchmark credibility, the following end-to-end enhancements were implemented:
 
 1.  **Empirical Override**: Scans task metadata for evidence of datasets, overriding "Theoretical" classifications.
 2.  **Intrinsic Proxy**: Uses known dataset complexity to predict non-linear scaling.
@@ -57,4 +62,4 @@ To achieve the 100% accuracy milestone, the following end-to-end enhancements we
 ---
 
 ### 5. Conclusion: Predicting the "Unpredictable"
-CCL4 establishes that AI emergence is not random. It is an identifiable phase transition governed by the structural properties of the task and the mechanistic constraints of the architecture. By mapping the **Circuit** and classifying the **Regime**, we have provided the "reliable principles" required for the next era of AI research.
+CCL4 now supports a narrower conclusion. Some surprising jumps can be reframed as observation effects, and some controlled benchmark families can be forecast and tracked with checkpointed mechanism evidence. The repo now records those claims with explicit coverage, failure modes, and deliverable provenance. The stronger goal of general capability prediction across tasks remains open.

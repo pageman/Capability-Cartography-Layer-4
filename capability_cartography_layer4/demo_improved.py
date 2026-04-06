@@ -15,7 +15,7 @@ from capability_cartography_layer4.schemas import TrajectoryType, VerdictType
 
 def run_improved_demo():
     print("="*80)
-    print("CCL4: ACCURACY IMPROVEMENT SUITE (96.7% -> 100%)")
+    print("CCL4: NARROW FORECASTING HEURISTIC DEMO")
     print("="*80)
 
     pipeline = CCL4Pipeline()
@@ -71,7 +71,7 @@ def run_improved_demo():
     print(f"  Regime Label:   {r3.regime.regime_label} (Correctly optimized to classical)")
 
     print("\n" + "="*80)
-    print("IMPROVED DEMO COMPLETE: 100% ACCURACY PATH VERIFIED")
+    print("IMPROVED DEMO COMPLETE: NARROW HEURISTIC PATH VERIFIED")
     print("="*80)
 
 if __name__ == "__main__":

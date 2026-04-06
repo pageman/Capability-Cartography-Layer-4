@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional
 from enum import Enum
 
 # Mocking torch for environments without it
@@ -29,7 +29,7 @@ class TrajectoryType(Enum):
     STEP_FUNCTION = "step-function"
     THEORETICAL = "theoretical"
     POWER_LAW_WITH_BIAS = "power-law-with-bias"
-    HYBRID = "hybrid"  # Improvement 5: Support for MoE/Mamba
+    HYBRID = "hybrid"
 
 class VerdictType(Enum):
     CONFIRMED = "CONFIRMED"
@@ -62,7 +62,40 @@ class TrajectoryForecast:
     emergence_threshold: Optional[float] = None
     scale_transfer_invariant: bool = False
     confidence: float = 0.0
-    pathology_risk: Optional[str] = None # Improvement 3: Feedback from Layer 3
+    pathology_risk: Optional[str] = None 
+
+@dataclass
+class QuantumAnalogyAnnotation:
+    """Interpretive, non-verified analogy between a mechanism and a quantum motif."""
+    analogy_name: str
+    register_ids: List[int]
+    classical_component: str
+    confidence: float
+    rationale: str
+
+@dataclass
+class MechanismOperation:
+    """An instantiated mechanistic operation bound to a concrete model component."""
+    operation_id: str
+    component: str
+    role: str
+    inputs: List[str] = field(default_factory=list)
+    outputs: List[str] = field(default_factory=list)
+    metadata: Dict[str, str] = field(default_factory=dict)
+
+@dataclass
+class MechanismMoment:
+    """A stage of non-conflicting mechanistic operations, inspired by Cirq moments."""
+    stage: int
+    operations: List[MechanismOperation] = field(default_factory=list)
+    label: Optional[str] = None
+
+@dataclass
+class MechanismCircuit:
+    """Structured mechanism IR for staged interpretability analysis."""
+    moments: List[MechanismMoment] = field(default_factory=list)
+    interpretive_quantum_analogies: List[QuantumAnalogyAnnotation] = field(default_factory=list)
+    analogy_summary: Optional[str] = None
 
 @dataclass
 class CircuitDefinition:
@@ -72,6 +105,7 @@ class CircuitDefinition:
     mechanism_description: str
     quantum_connection_potential: bool = False
     fourier_signature: Optional[float] = None
+    mechanism_circuit: Optional[MechanismCircuit] = None
 
 @dataclass
 class EmergenceRecord:
