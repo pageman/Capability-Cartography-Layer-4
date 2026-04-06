@@ -16,6 +16,8 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 **The Convergence Turn**: Earlier benchmark files carried their own local mechanism summaries. The current repo now routes structured bundles from both the tiny-model suite and the small-transformer bundle through the same `circuit_discovery.py` engine, so feature ranking, Fourier scoring, and targeted-vs-random ablation use one shared contract.
 
+**The Metadata Audit Turn**: A repo-wide stub sweep now distinguishes active-path implementation gaps from acceptable narrow placeholders. The most important closed gap is that `circuit_discovery.py` can now infer feature bundles directly from raw NumPy matrices when paired with a compatible linear/readout model, rather than dropping immediately to canned labels. The main remaining stubs are now isolated to three bounded areas: full graph recovery on realistic checkpoints, the optional quantum analogy layer, and heuristic fallbacks when neither a structured bundle nor an analyzable model is present.
+
 **The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
@@ -29,6 +31,9 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 > #### **Story Box 4: One Discovery Engine, Two Benchmark Paths**
 > The repo now applies the same discovery engine to two different evidence paths. `real_tiny_case.py` supplies explicit feature bundles from its NumPy models, while `small_transformer_case.py` extracts final context-vector bundles from the checkpointed attention model. That does not make the analysis broad, but it does remove a previous source of methodological drift.
+
+> #### **Story Box 5: The Stub Audit Compression**
+> The repo no longer treats every weak area as equally urgent. A metadata sweep compressed the active stub surface down to a short list: (1) full ACDC/SAE-style graph recovery on realistic checkpoints, (2) optional quantum analogy logic, and (3) heuristic fallbacks for inputs that still lack analyzable structure. Everything else in the active benchmark path is now either implemented, tested, or explicitly marked as narrow.
 
 ---
 
@@ -63,6 +68,9 @@ The CCL4 pipeline is a dual-engine system:
 > #### **Method Box 4: Shared Feature-Bundle Integration**
 > The tiny-model suite now feeds explicit feature matrices into `circuit_discovery.py`, and the small-transformer bundle now feeds final context vectors from the trained attention model into the same discovery engine. This creates an end-to-end benchmark contract: generate bundle, discover components, compare targeted and random ablation, then record the result in the artifact layer.
 
+> #### **Method Box 5: Minimum-Viable Stub Replacements**
+> The repo now records a concrete replacement path for each remaining stub family. For raw matrix inputs, `circuit_discovery.py` infers a feature bundle from model outputs and analyzes it through the same scoring and ablation contract. For checkpointed attention traces, the next minimum-viable upgrade is to replace stable-position overlap with edge-level route extraction and matched control ablations. For the optional quantum layer, the minimum honest replacement is to keep it as analogy-only unless it improves benchmark prediction or mechanism selection measurably.
+
 ---
 
 ### 4. Technical Consolidation: The Five Improvements
@@ -77,5 +85,26 @@ To improve narrow-benchmark credibility, the following end-to-end enhancements w
 
 ---
 
-### 5. Conclusion: Predicting the "Unpredictable"
+### 5. Stub Audit Snapshot
+
+The current stub inventory is narrower than earlier repo drafts:
+
+1. **Closed in active path**:
+   - raw NumPy demo inputs can now be analyzed through inferred feature bundles when paired with compatible linear/readout models;
+   - structured tiny-model and small-transformer bundles already flow through the same discovery engine;
+   - targeted-vs-random ablation is no longer purely hardcoded for structured linear bundles.
+
+2. **Still narrow but acceptable**:
+   - heuristic fallback labels for demo cases that do not supply analyzable structure;
+   - position-level attention-route summaries in the small-transformer bundle;
+   - operational heuristic regime forecasting over `(m, r, d, s*)`.
+
+3. **Still planned**:
+   - full ACDC/SAE-style graph recovery on realistic checkpoints;
+   - large-model circuit discovery beyond synthetic families;
+   - quantum-style motifs that add measurable predictive or mechanistic value.
+
+---
+
+### 6. Conclusion: Predicting the "Unpredictable"
 CCL4 now supports a narrower conclusion. Some surprising jumps can be reframed as observation effects, and some controlled benchmark families can be forecast and tracked with checkpointed mechanism evidence. The repo now records those claims with explicit coverage, failure modes, deliverable provenance, and an active benchmark path that no longer depends on PyTorch. The stronger goal of general capability prediction across tasks remains open.

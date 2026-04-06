@@ -4,9 +4,31 @@ from capability_cartography_layer4.orchestration import CCL4Pipeline
 
 
 class NumpyLinearPlaceholder:
-    def __init__(self, in_features: int, out_features: int) -> None:
-        self.weight = np.zeros((out_features, in_features), dtype=float)
-        self.bias = np.zeros(out_features, dtype=float)
+    def __init__(self, weights) -> None:
+        self.weight = np.asarray(weights, dtype=float)[None, :]
+        self.bias = np.zeros(1, dtype=float)
+
+
+def _periodic_demo_features(modulus: int = 17) -> np.ndarray:
+    rows = []
+    for x in range(modulus):
+        angle = 2.0 * np.pi * x / modulus
+        rows.append([np.sin(angle), np.cos(angle), x / (modulus - 1), np.sin(2.0 * angle)])
+    return np.asarray(rows, dtype=float)
+
+
+def _induction_demo_features(length: int = 12) -> np.ndarray:
+    rows = []
+    for index in range(length):
+        rows.append(
+            [
+                1.0 if index % 3 == 0 else 0.0,
+                float(index) / max(1, length - 1),
+                1.0 if index >= length // 2 else 0.0,
+                np.sin(index / 2.0),
+            ]
+        )
+    return np.asarray(rows, dtype=float)
 
 def run_demo():
     print("="*80)
@@ -36,8 +58,8 @@ def run_demo():
             "novel_architecture": True,
             "compressibility_gap": 15.0
         },
-        "model": NumpyLinearPlaceholder(64, 64),
-        "data": np.zeros((1, 10), dtype=float)
+        "model": NumpyLinearPlaceholder([0.9, 0.4, 0.2, 0.1]),
+        "data": _induction_demo_features()
     }
 
     # Case 3: P31 Modular Exponentiation (Grokking)
@@ -52,8 +74,8 @@ def run_demo():
             "novel_architecture": False,
             "compressibility_gap": 35.0
         },
-        "model": NumpyLinearPlaceholder(128, 128),
-        "data": np.zeros((1, 4), dtype=float)
+        "model": NumpyLinearPlaceholder([1.1, 0.25, 0.05, 0.8]),
+        "data": _periodic_demo_features()
     }
 
     print("\n[STEP 1] Running P22 Scaling Laws (Predictive Only)")

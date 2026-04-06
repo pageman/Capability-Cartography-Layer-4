@@ -75,6 +75,33 @@ class CircuitDiscovery:
                 ),
             )
 
+        inferred_bundle = self._infer_feature_bundle_from_model(data)
+        if inferred_bundle is not None:
+            features, scores, labels = inferred_bundle
+            component_names = self._component_names(data, features.shape[1])
+            top_indices, top_scores = self._rank_components(features, scores)
+            selected_names = [component_names[index] for index in top_indices]
+            fourier_signature = self._bundle_fourier_signature(features, scores)
+            circuit_type = self._classify_circuit_type(capability_id, fourier_signature)
+            mechanism_circuit = self._build_feature_circuit(selected_names, top_scores)
+            targeted_drop, random_drop = self._ablation_drops(selected_names, self.model, features, labels, component_names)
+            return CircuitDefinition(
+                type=circuit_type,
+                components=selected_names,
+                mechanism_description=self._mechanism_description(
+                    circuit_type, selected_names, fourier_signature, targeted_drop, random_drop
+                ),
+                quantum_connection_potential=circuit_type == CircuitType.FOURIER,
+                fourier_signature=round(fourier_signature, 4),
+                mechanism_circuit=mechanism_circuit,
+                analysis_metadata={
+                    "component_scores": {selected_names[i]: top_scores[i] for i in range(len(selected_names))},
+                    "targeted_drop": round(targeted_drop, 4),
+                    "random_drop": round(random_drop, 4),
+                    "bundle_origin": "model_inferred",
+                },
+            )
+
         if "modular" in capability_id or "exponentiation" in capability_id:
             return CircuitDefinition(
                 type=CircuitType.FOURIER,
@@ -117,6 +144,8 @@ class CircuitDiscovery:
     def compute_ablation_impact(self, circuit: CircuitDefinition, model: Any, test_data: Any) -> float:
         feature_bundle = self._coerce_feature_bundle(test_data)
         if feature_bundle is None:
+            feature_bundle = self._infer_feature_bundle_from_model(test_data, model=model)
+        if feature_bundle is None:
             if circuit.type == CircuitType.FOURIER:
                 return 0.95
             if circuit.type == CircuitType.INDUCTION:
@@ -139,6 +168,34 @@ class CircuitDiscovery:
         if features.ndim != 2 or scores.ndim != 1 or labels.ndim != 1:
             return None
         if len(features) != len(scores) or len(scores) != len(labels):
+            return None
+        return features, scores, labels
+
+    def _infer_feature_bundle_from_model(
+        self,
+        data: Any,
+        model: Optional[Any] = None,
+    ) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray]]:
+        active_model = model if model is not None else self.model
+        if active_model is None:
+            return None
+        features = np.asarray(data, dtype=float) if not isinstance(data, dict) else None
+        if features is None or features.ndim != 2 or features.shape[0] < 3:
+            return None
+        adapter = None
+        if LinearFeatureAdapter.supports(active_model):
+            adapter = LinearFeatureAdapter(active_model)
+        elif VectorReadoutAdapter.supports(active_model):
+            adapter = VectorReadoutAdapter(active_model)
+        if adapter is None:
+            return None
+        scores = np.asarray(adapter.predict_scores(features), dtype=float).reshape(-1)
+        if np.allclose(scores, scores[0]):
+            scores = features[:, 0] - np.mean(features[:, 0])
+        labels = (scores >= np.median(scores)).astype(float)
+        if len(np.unique(labels)) < 2 and features.shape[1] > 1:
+            labels = (features[:, 1] >= np.median(features[:, 1])).astype(float)
+        if len(np.unique(labels)) < 2:
             return None
         return features, scores, labels
 

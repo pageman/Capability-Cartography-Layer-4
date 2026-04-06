@@ -48,6 +48,25 @@ class CircuitDiscoveryTests(unittest.TestCase):
         )
         self.assertGreater(ablation_drop, 0.2)
 
+    def test_infers_feature_bundle_from_raw_array_and_weight_matrix(self) -> None:
+        class WeightMatrixModel:
+            def __init__(self) -> None:
+                self.weight = np.asarray([[1.2, 0.1, 0.0, 0.8]], dtype=float)
+                self.bias = np.asarray([0.0], dtype=float)
+
+        modulus = 17
+        features = []
+        for x in range(modulus):
+            angle = 2.0 * math.pi * x / modulus
+            features.append([math.sin(angle), math.cos(angle), x / (modulus - 1), math.sin(2.0 * angle)])
+
+        discovery = CircuitDiscovery(WeightMatrixModel())
+        circuit = discovery.identify_circuit("modular_exponentiation", np.asarray(features, dtype=float))
+
+        self.assertEqual(circuit.type.value, "fourier_based")
+        self.assertEqual(circuit.analysis_metadata["bundle_origin"], "model_inferred")
+        self.assertGreaterEqual(circuit.analysis_metadata["targeted_drop"], 0.1)
+
 
 if __name__ == "__main__":
     unittest.main()

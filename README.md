@@ -52,6 +52,7 @@ The current repo demonstrates a narrow package:
 - simple held-out causal intervention,
 - a two-family small-transformer evidence bundle with one periodic family and one smooth control family,
 - a rudimentary feature-level circuit discovery path for structured linear bundles,
+- a raw-matrix inference path that lets `circuit_discovery.py` analyze compatible linear/readout demos without requiring prebuilt feature-bundle metadata,
 - an end-to-end integration where [`real_tiny_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/real_tiny_case.py) and [`small_transformer_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/small_transformer_case.py) now feed structured feature bundles directly into [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py),
 - baseline comparisons on a frozen small benchmark.
 - a root [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) that records scope, claim coverage, and failure modes for the current evidence artifacts.
@@ -73,7 +74,9 @@ The current research arc is narrower and better instrumented than earlier repo d
 - connect pre-training forecasts to post-training mechanism checks,
 - remove unnecessary active-path PyTorch dependency from the benchmarked demo and suite flows,
 - upgrade `circuit_discovery.py` from pure string heuristics to a rudimentary real analysis path for linear feature bundles,
+- extend that discovery path so raw NumPy matrices with compatible linear/readout models can be converted into inferred feature bundles instead of dropping immediately to canned labels,
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
+- compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
 
@@ -82,7 +85,7 @@ The resulting posture is: evidence-backed narrow forecasting plus narrow mechani
 ## Project Structure
 
 -   `regime_forecaster.py`: Logic for pre-training trajectory prediction.
--   `circuit_discovery.py`: Rudimentary feature-level circuit analysis plus heuristic fallbacks for unstructured demo inputs.
+-   `circuit_discovery.py`: Rudimentary feature-level circuit analysis for structured or model-inferred bundles, plus heuristic fallbacks for fully unstructured demo inputs.
 -   `orchestration.py`: Unified pipeline for forecasting and verification.
 -   `schemas.py`: Data structures for records, forecasts, and circuit definitions.
 -   `demo.py`: Verification script across Scaling Laws, Transformers, and Modular Exponentiation.
