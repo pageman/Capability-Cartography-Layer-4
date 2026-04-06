@@ -80,7 +80,7 @@ The current research arc is narrower and better instrumented than earlier repo d
 - sharpen the sparse relational miss into a cleaner falsifier by surfacing it as a forecast miss with no informative circuit and non-diagnostic ablation,
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
 - mirror the tiny-suite positive/control/falsifier structure inside the small-transformer bundle, while keeping that bundle explicitly preliminary,
-- replace the earlier self-citation placeholders with the current ResearchGate references that match the repo’s narrowed forecasting and causal-cartography framing,
+- replace the earlier self-citation placeholders with the current 2026 ResearchGate references that match the repo’s narrowed forecasting and causal-cartography framing,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
@@ -130,8 +130,8 @@ python3 benchmark/run_minimal_suite.py
 
 ## References
 -   Schur, F. et al. (2026). *Many Experiments, Few Repetitions, Unpaired Data, and Sparse Effects*. arXiv:2601.15254
--   Pajo, P. (2025). *From Mystery to Measurement: A Causal Framework for LLM Capability Cartography*. ResearchGate. DOI: 10.13140/RG.2.2.19096.56325
--   Pajo, P. (2025). *Finite-Sample Performance of SplitUP in Many-Environments Unpaired Instrumental Variables: A Simulation Study with Pilot Results*. ResearchGate. DOI: 10.13140/RG.2.2.20833.77925
+-   Pajo, P. (2026). *From Mystery to Measurement: A Causal Framework for LLM Capability Cartography*. ResearchGate. DOI: 10.13140/RG.2.2.19096.56325
+-   Pajo, P. (2026). *Finite-Sample Performance of SplitUP in Many-Environments Unpaired Instrumental Variables: A Simulation Study with Pilot Results*. ResearchGate. DOI: 10.13140/RG.2.2.20833.77925
 -   **Capability Cartography Layer 3**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer-3) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartography-Layer-3)
 -   **Capability Cartography Layer 2**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer-2) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartograpy-Layer-2)
 -   **Capability Cartography Layer 1**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartography-Layer)
