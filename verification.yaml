@@ -24,9 +24,9 @@ artifacts:
   small_transformer_case:
     path: "artifacts/small_transformer_case/summary_report.md"
     present: true
-    scope: "two-family small-transformer checkpointed artifact bundle with stable attention-route extraction"
+    scope: "three-family small-transformer checkpointed artifact bundle with positive/control/falsifier roles and stable attention-route extraction"
     claim_coverage: "low-to-medium"
-    measured_regime: "two deterministic synthetic sequence families with held-out splits, ablation logs, and deliverable manifest"
+    measured_regime: "three deterministic synthetic sequence families with held-out splits, ablation logs, and deliverable manifest"
     failure_modes:
       - "artifact bundle does not establish frontier-model or large-model circuit discovery"
       - "ablation comparison remains exploratory and can be mixed across families"

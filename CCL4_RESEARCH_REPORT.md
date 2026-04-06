@@ -28,7 +28,7 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 > Historically, P04 was viewed as a purely theoretical paper on MDL (Minimum Description Length). CCL4's initial failure to classify it as a "Power-law" revealed a bias in our forecasting logic: we were weighting Publication Date and Title over the presence of MNIST experiments. By adding an "Empirical Override," we taught the framework that even a "Theory" paper can be a "Power-law" prototype if it contains a dataset.
 
 > #### **Story Box 2: From One Mechanism Toy To A Small Evidence Bundle**
-> The repo now includes both checkpointed toy modular evidence and a two-family small-transformer bundle. The periodic family supports stable attention-route extraction, while the smooth control family prevents the repo from implying that every discovery result must look abrupt or Fourier-like.
+> The repo now includes both checkpointed toy modular evidence and a three-family small-transformer bundle. The periodic family plays the positive case, the smooth family plays the control case, and the sparse relational family now plays an explicit falsifier role inside the same artifact package.
 
 > #### **Story Box 3: From Pure Heuristic Labeling To Rudimentary Real Analysis**
 > Earlier versions of `circuit_discovery.py` mapped capability names to canned circuit labels. The current repo still does not perform full ACDC/SAE graph recovery, but it now does one real thing: when given a structured linear feature bundle, it ranks components by alignment, computes a real Fourier score, and compares targeted ablation against random control ablation.
@@ -58,7 +58,7 @@ The CCL4 pipeline is a dual-engine system:
 
 2.  **Mapping Engine (Post-training)**:
     -   **Input**: Model weights, structured feature bundles, and checkpoint history.
-    -   **Process**: checkpointed proxy discovery on tiny NumPy models, shared rudimentary feature-level circuit analysis for structured linear bundles, plus a narrow implemented small-transformer attention-route extraction across two synthetic families.
+    -   **Process**: checkpointed proxy discovery on tiny NumPy models, shared rudimentary feature-level circuit analysis for structured linear bundles, plus a narrow implemented small-transformer attention-route extraction across positive/control/falsifier synthetic families.
     -   **Output**: benchmark-specific circuit summaries, causal verification via targeted-vs-random ablation, real Fourier scores for structured bundles, and explicit artifact-level `claim_coverage` / `failure_modes`.
 
 3.  **Observability Layer**:

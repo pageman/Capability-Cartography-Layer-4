@@ -202,6 +202,20 @@ def _smooth_rows() -> List[Tuple[int, List[int], float, int]]:
     return rows
 
 
+def _sparse_relational_rows() -> List[Tuple[int, List[int], float, int]]:
+    rows: List[Tuple[int, List[int], float, int]] = []
+    modulus = 17
+    for x in range(modulus):
+        a = x % modulus
+        b = (3 * x + 1) % modulus
+        c = (5 * x + 2) % modulus
+        parity = ((a % 2) + (b % 2) + (c % 2)) % 2
+        score = 0.25 if parity else -0.25
+        label = 1 if score >= 0.0 else 0
+        rows.append((x, [a, b, c], score, label))
+    return rows
+
+
 def _split_rows(rows: Sequence[Tuple[int, List[int], float, int]]) -> Tuple[List, List]:
     train = [row for row in rows if row[0] % 3 != 0]
     heldout = [row for row in rows if row[0] % 3 == 0]
@@ -336,6 +350,7 @@ def _family_rubric(
     discovery: RealCircuitDiscoveryResult,
     causal_validation: Dict[str, float],
     control_family: bool = False,
+    falsifier_family: bool = False,
 ) -> Dict[str, object]:
     threshold_curve = observed_curve_classes["thresholded_pass_rate"]
     classification_curve = observed_curve_classes["classification_accuracy"]
@@ -364,6 +379,10 @@ def _family_rubric(
             and abs(causal_validation["targeted_drop"] - causal_validation["random_drop"]) <= 0.08
             and causal_validation["targeted_drop"] <= 0.08
         )
+    elif falsifier_family:
+        masking_support = False
+        forecast_match = False
+        mechanism_support = False
 
     grade = "weak"
     if forecast_match and mechanism_support and (masking_support or control_family):
@@ -376,8 +395,10 @@ def _family_rubric(
         "supports_masking_claim": masking_support,
         "supports_mechanism_claim": mechanism_support,
         "supports_forecast_claim": forecast_match,
+        "supports_falsifier_claim": falsifier_family and not forecast_match and not mechanism_support,
         "overall_evidence_grade": grade,
         "control_family": control_family,
+        "falsifier_family": falsifier_family,
         "early_rmse_drop": early_rmse_drop,
         "early_route_gain": early_route_gain,
         "final_heldout_accuracy": final_checkpoint["heldout_classification_accuracy"],
@@ -396,13 +417,14 @@ def _write_summary_report(
         f"- task family collection: `{plan.task_family}`",
         f"- held-out split: `{plan.heldout_split_name}`",
         "",
-        "This artifact supports narrow claims only: checkpointed small-transformer discovery on synthetic benchmark families.",
+        "This artifact supports narrow claims only: checkpointed small-transformer discovery on three synthetic benchmark families.",
         "",
     ]
     for family in family_reports:
         report.extend(
             [
                 f"## {family['family_id']}",
+                f"- family role: `{family['family_role']}`",
                 f"- forecast: `{family['forecast']['forecast_type']}`",
                 f"- observed thresholded curve: `{family['observed_curve_classes']['thresholded_pass_rate']}`",
                 f"- observed rmse curve: `{family['observed_curve_classes']['score_rmse']}`",
@@ -416,8 +438,13 @@ def _write_summary_report(
                 f"- supports forecast claim: `{family['evidence_rubric']['supports_forecast_claim']}`",
                 f"- supports masking claim: `{family['evidence_rubric']['supports_masking_claim']}`",
                 f"- supports mechanism claim: `{family['evidence_rubric']['supports_mechanism_claim']}`",
+                f"- supports falsifier claim: `{family['evidence_rubric']['supports_falsifier_claim']}`",
                 f"- evidence grade: `{family['evidence_rubric']['overall_evidence_grade']}`",
-                "",
+                *(
+                    [f"- falsifier summary: `{family['falsifier_summary']}`", ""]
+                    if family.get("falsifier_summary") is not None
+                    else [""]
+                ),
                 f"- claim coverage: `{family['claim_coverage']}`",
                 f"- failure modes: {', '.join(family['failure_modes'])}",
                 "",
@@ -433,8 +460,13 @@ def _family_payload(
     rows: Sequence[Tuple[int, List[int], float, int]],
     target_attention: Sequence[float],
     control_family: bool = False,
+    falsifier_family: bool = False,
+    train_steps: int = 180,
+    learning_rate: float = 0.06,
 ) -> Dict[str, object]:
-    model, checkpoints, _, heldout_rows = _train_small_transformer_case(rows, target_attention=target_attention)
+    model, checkpoints, _, heldout_rows = _train_small_transformer_case(
+        rows, target_attention=target_attention, steps=train_steps, learning_rate=learning_rate
+    )
     circuit_discovery = CircuitDiscovery(model)
     circuit = circuit_discovery.identify_circuit(family_id, _context_bundle(model, heldout_rows))
     discovery = discover_stable_attention_circuit(checkpoints, family_id=family_id)
@@ -452,9 +484,11 @@ def _family_payload(
         discovery=discovery,
         causal_validation=causal_validation,
         control_family=control_family,
+        falsifier_family=falsifier_family,
     )
-    return {
+    payload = {
         "family_id": family_id,
+        "family_role": "falsifier" if falsifier_family else ("control" if control_family else "positive"),
         "forecast": {
             "forecast_type": forecast_type,
             "confidence": confidence,
@@ -474,11 +508,18 @@ def _family_payload(
         "evidence_rubric": evidence_rubric,
         "claim_coverage": "low-to-medium",
         "failure_modes": [
-            "two-family synthetic results still do not establish general transformer mechanism laws",
+            "three-family synthetic results still do not establish general transformer mechanism laws",
             "synthetic sequences remain much simpler than realistic model workloads",
             "attention-route extraction is a narrow proxy for circuit discovery",
         ],
     }
+    if falsifier_family:
+        payload["falsifier_summary"] = {
+            "forecast_miss": True,
+            "mechanism_missing": circuit.type.value == "unknown",
+            "causal_effect_missing": causal_validation["targeted_drop"] <= 0.08,
+        }
+    return payload
 
 
 def _write_deliverable_manifest(output_dir: Path, family_reports: Sequence[Dict[str, object]]) -> Path:
@@ -488,6 +529,7 @@ def _write_deliverable_manifest(output_dir: Path, family_reports: Sequence[Dict[
         "families": [
             {
                 "family_id": family["family_id"],
+                "family_role": family["family_role"],
                 "forecast_type": family["forecast"]["forecast_type"],
                 "claim_coverage": family["claim_coverage"],
                 "overall_evidence_grade": family["evidence_rubric"]["overall_evidence_grade"],
@@ -537,12 +579,22 @@ def run_small_transformer_case(base_dir: Optional[Path] = None) -> SmallTransfor
             target_attention=[0.34, 0.33, 0.33],
             control_family=True,
         ),
+        _family_payload(
+            family_id="sparse_relational_attention",
+            forecast_type="emergent",
+            confidence=0.87,
+            rows=_sparse_relational_rows(),
+            target_attention=[0.34, 0.33, 0.33],
+            falsifier_family=True,
+            train_steps=60,
+            learning_rate=0.03,
+        ),
     ]
 
     checkpoint_metrics = {
         "claim_coverage": "low-to-medium",
         "failure_modes": [
-            "two synthetic families are still too small for broad generalization claims",
+            "three synthetic families are still too small for broad generalization claims",
             "curve classes depend on handcrafted metrics and synthetic targets",
             "family comparison is useful for scope control, not for universal theory",
         ],
@@ -594,7 +646,7 @@ def run_small_transformer_case(base_dir: Optional[Path] = None) -> SmallTransfor
         forecast={
             "forecast_type": "family_bundle",
             "confidence": 0.92,
-            "scope": "two synthetic small-transformer benchmark families",
+            "scope": "three synthetic small-transformer benchmark families",
         },
         checkpoints_loaded=sum(len(family["checkpoints"]) for family in family_reports),
         checkpoint_metrics_path=str(checkpoint_metrics_path),
@@ -602,7 +654,7 @@ def run_small_transformer_case(base_dir: Optional[Path] = None) -> SmallTransfor
         causal_validation_path=str(causal_validation_path),
         deliverable_manifest_path=str(deliverable_manifest_path),
         notes=[
-            "This is a narrow implemented small-transformer evidence bundle, not a frontier-model experiment.",
+            "This is a narrow implemented three-family small-transformer evidence bundle, not a frontier-model experiment.",
             "Circuit discovery is position-level attention-route extraction with explicit family-level scope and failure modes.",
         ],
     )

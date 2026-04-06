@@ -50,7 +50,7 @@ The current repo demonstrates a narrow package:
 - a checkpointed modular case study with metric masking,
 - a NumPy-only tiny-model benchmark path that does not require PyTorch for the active demos and suite,
 - simple held-out causal intervention,
-- a two-family small-transformer evidence bundle with one periodic family and one smooth control family,
+- a three-family small-transformer evidence bundle with one periodic family, one smooth control family, and one explicit falsifier family,
 - a rudimentary feature-level circuit discovery path for structured linear bundles,
 - a raw-matrix inference path that lets `circuit_discovery.py` analyze compatible linear/readout demos without requiring prebuilt feature-bundle metadata,
 - an end-to-end integration where [`real_tiny_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/real_tiny_case.py) and [`small_transformer_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/small_transformer_case.py) now feed structured feature bundles directly into [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py),
@@ -79,6 +79,8 @@ The current research arc is narrower and better instrumented than earlier repo d
 - strengthen the non-periodic tiny control so it now passes the shared rubric as a smooth calibrated control instead of a weak residual case,
 - sharpen the sparse relational miss into a cleaner falsifier by surfacing it as a forecast miss with no informative circuit and non-diagnostic ablation,
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
+- mirror the tiny-suite positive/control/falsifier structure inside the small-transformer bundle, while keeping that bundle explicitly preliminary,
+- replace the earlier self-citation placeholders with the current ResearchGate references that match the repo’s narrowed forecasting and causal-cartography framing,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
@@ -105,7 +107,7 @@ The resulting posture is: evidence-backed narrow forecasting plus narrow mechani
 -   `PARAMETERS.md`: Operational definitions and uncertainty notes for `(m, r, d, s*)`.
 -   `TRANSFER.md`: Narrow statement of what SplitUP/Schur-inspired transfer does and does not justify in this repo.
 -   `ROADMAP.md`: File-by-file roadmap for moving the repo from framework sketch to evidence-backed package.
--   `small_transformer_case.py`: Implemented NumPy checkpointed two-family small-transformer benchmark with artifact outputs.
+-   `small_transformer_case.py`: Implemented NumPy checkpointed three-family small-transformer benchmark with artifact outputs.
 -   `checkpointed_attention_discovery.py`: Narrow discovery utilities for stable attention-route extraction and targeted-vs-random ablation summaries.
 
 ## Quick Start
@@ -128,8 +130,8 @@ python3 benchmark/run_minimal_suite.py
 
 ## References
 -   Schur, F. et al. (2026). *Many Experiments, Few Repetitions, Unpaired Data, and Sparse Effects*. arXiv:2601.15254
--   Pajo, P. (2026). *Predicting AI Capability Trajectories Before Training: A Regime-Theoretic Framework*.
--   Pajo, P. (2026). *Mechanistic Causal Analysis for LLM Capability Cartography*.
+-   Pajo, P. (2025). *From Mystery to Measurement: A Causal Framework for LLM Capability Cartography*. ResearchGate. DOI: 10.13140/RG.2.2.19096.56325
+-   Pajo, P. (2025). *Finite-Sample Performance of SplitUP in Many-Environments Unpaired Instrumental Variables: A Simulation Study with Pilot Results*. ResearchGate. DOI: 10.13140/RG.2.2.20833.77925
 -   **Capability Cartography Layer 3**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer-3) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartography-Layer-3)
 -   **Capability Cartography Layer 2**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer-2) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartograpy-Layer-2)
 -   **Capability Cartography Layer 1**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartography-Layer)
