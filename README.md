@@ -27,6 +27,7 @@ Instead of treating the model as a black box, CCL4 tracks simple mechanistic pro
 -   **Fourier-style signals** in periodic modular tasks.
 -   **Circuit-completeness proxies** based on sparse weight structure and held-out interventions.
 -   **Rudimentary real circuit analysis** for linear feature bundles via feature ranking, Fourier scoring, and targeted-vs-random ablation in [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py).
+-   **Shared discovery contract** across the benchmarked tiny-model and small-transformer paths, so generated artifacts now flow through the same circuit-discovery engine instead of bespoke per-file mechanism summaries.
 
 ### 3. Optional Quantum Analogy Layer
 CCL4 includes an optional interpretive layer that compares some modular-arithmetic circuits to Fourier-style motifs also discussed in quantum algorithms like **Shor's Algorithm** and the **Quantum Fourier Transform (QFT)**. In the current repo this is analogy only, not a validated equivalence claim.
@@ -48,6 +49,7 @@ The current repo demonstrates a narrow package:
 - simple held-out causal intervention,
 - a two-family small-transformer evidence bundle with one periodic family and one smooth control family,
 - a rudimentary feature-level circuit discovery path for structured linear bundles,
+- an end-to-end integration where [`real_tiny_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/real_tiny_case.py) and [`small_transformer_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/small_transformer_case.py) now feed structured feature bundles directly into [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py),
 - baseline comparisons on a frozen small benchmark.
 - a root [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) that records scope, claim coverage, and failure modes for the current evidence artifacts.
 - a frozen [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json) for the canonical small-transformer artifact package.
@@ -68,6 +70,7 @@ The current research arc is narrower and better instrumented than earlier repo d
 - connect pre-training forecasts to post-training mechanism checks,
 - remove unnecessary active-path PyTorch dependency from the benchmarked demo and suite flows,
 - upgrade `circuit_discovery.py` from pure string heuristics to a rudimentary real analysis path for linear feature bundles,
+- route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
 

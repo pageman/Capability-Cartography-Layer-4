@@ -107,6 +107,7 @@ class CircuitDefinition:
     quantum_connection_potential: bool = False
     fourier_signature: Optional[float] = None
     mechanism_circuit: Optional[MechanismCircuit] = None
+    analysis_metadata: Dict[str, object] = field(default_factory=dict)
 
 @dataclass
 class EmergenceRecord:

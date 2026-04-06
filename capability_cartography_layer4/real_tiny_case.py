@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 from .case_study import classify_metric_curve, classify_rmse_curve
+from .circuit_discovery import CircuitDiscovery
 from .mechanism_feedback import feedback_adjust_forecast
 from .orchestration import CCL4Pipeline
 from .parameter_extractor import extract_case_parameters, flatten_parameters
@@ -46,6 +47,9 @@ class TinySparseRelationalNet:
 
     def predict_matrix(self, features: np.ndarray) -> np.ndarray:
         return self._forward_components(features)[2]
+
+    def hidden_features(self, features: np.ndarray) -> np.ndarray:
+        return self._forward_components(features)[1]
 
     def train_step(self, features: np.ndarray, scores: np.ndarray, learning_rate: float) -> None:
         hidden_linear, hidden, predictions = self._forward_components(features)
@@ -276,37 +280,24 @@ def _forecast_for_case(case_id: str, kind: str) -> Dict[str, object]:
     }
 
 
-def _discover_periodic_mechanism(model) -> Dict[str, object]:
-    feature_names = ["sin", "cos", "sin2", "cos2"]
-    ranked = sorted(
-        [{"feature": name, "weight": round(float(weight), 4), "abs_weight": abs(float(weight))} for name, weight in zip(feature_names, model.weights)],
-        key=lambda item: item["abs_weight"],
-        reverse=True,
-    )
+def _structured_bundle(features: np.ndarray, scores: np.ndarray, labels: np.ndarray, component_names: List[str]) -> Dict[str, object]:
     return {
-        "top_features": ranked[:2],
-        "all_weights": ranked,
+        "features": features.tolist(),
+        "scores": scores.tolist(),
+        "labels": labels.tolist(),
+        "component_names": component_names,
     }
 
 
-def _targeted_vs_random_ablation(model, heldout_features: np.ndarray, heldout_scores: np.ndarray, heldout_labels: np.ndarray) -> Dict[str, float]:
-    baseline = _classification_accuracy(model, heldout_features, heldout_labels)
-    base_state = model.snapshot()
-
-    model.weights[[0, 3]] = 0.0
-    targeted = _classification_accuracy(model, heldout_features, heldout_labels)
-    model.restore(base_state)
-
-    model.weights[[1, 2]] = 0.0
-    random_like = _classification_accuracy(model, heldout_features, heldout_labels)
-    model.restore(base_state)
-
+def _circuit_report(circuit) -> Dict[str, object]:
     return {
-        "baseline_accuracy": round(baseline, 4),
-        "targeted_ablation_accuracy": round(targeted, 4),
-        "random_ablation_accuracy": round(random_like, 4),
-        "targeted_drop": round(baseline - targeted, 4),
-        "random_drop": round(baseline - random_like, 4),
+        "circuit_type": circuit.type.value,
+        "components": list(circuit.components),
+        "fourier_signature": circuit.fourier_signature,
+        "mechanism_description": circuit.mechanism_description,
+        "component_scores": circuit.analysis_metadata.get("component_scores", {}),
+        "targeted_drop": circuit.analysis_metadata.get("targeted_drop"),
+        "random_drop": circuit.analysis_metadata.get("random_drop"),
     }
 
 
@@ -381,9 +372,17 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
     periodic_rows = _periodic_rows()
     periodic_train, periodic_heldout = _split_rows(periodic_rows)
     periodic_model = TinyPeriodicNet()
+    periodic_discovery = CircuitDiscovery(periodic_model)
     periodic_checkpoints, _, _, _, periodic_hf, periodic_hs, periodic_hl = _train_model(
         periodic_model, periodic_train, periodic_heldout, steps=72, learning_rate=0.08, periodic=True
     )
+    periodic_bundle = _structured_bundle(
+        periodic_hf,
+        periodic_hs,
+        periodic_hl,
+        ["sin", "cos", "sin2", "cos2"],
+    )
+    periodic_circuit = periodic_discovery.identify_circuit("tiny_periodic_modular", periodic_bundle)
     periodic_payload = {
         "forecast": _forecast_for_case("tiny_periodic_modular", "periodic"),
         "observed_curve_classes": {
@@ -393,8 +392,12 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
         },
         "checkpoints": periodic_checkpoints,
         "causal_validation": _causal_validation(periodic_model, periodic_hf, periodic_hs, periodic_hl, periodic=True),
-        "mechanism_discovery": _discover_periodic_mechanism(periodic_model),
-        "targeted_vs_random_ablation": _targeted_vs_random_ablation(periodic_model, periodic_hf, periodic_hs, periodic_hl),
+        "mechanism_discovery": _circuit_report(periodic_circuit),
+        "targeted_vs_random_ablation": {
+            "baseline_accuracy": round(_classification_accuracy(periodic_model, periodic_hf, periodic_hl), 4),
+            "targeted_drop": periodic_circuit.analysis_metadata.get("targeted_drop", 0.0) or 0.0,
+            "random_drop": periodic_circuit.analysis_metadata.get("random_drop", 0.0) or 0.0,
+        },
     }
     periodic_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(periodic_payload["forecast"], periodic_checkpoints)
     periodic_payload["evidence_rubric"] = _case_evidence_rubric(
@@ -410,9 +413,17 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
     non_periodic_rows = _non_periodic_rows()
     non_periodic_train, non_periodic_heldout = _split_rows(non_periodic_rows)
     non_periodic_model = TinyPeriodicNet()
+    non_periodic_discovery = CircuitDiscovery(non_periodic_model)
     non_periodic_checkpoints, _, _, _, non_hf, non_hs, non_hl = _train_model(
         non_periodic_model, non_periodic_train, non_periodic_heldout, steps=72, learning_rate=0.09, periodic=False
     )
+    non_periodic_bundle = _structured_bundle(
+        non_hf,
+        non_hs,
+        non_hl,
+        ["normalized_input", "bias_like", "unused_0", "unused_1"],
+    )
+    non_periodic_circuit = non_periodic_discovery.identify_circuit("tiny_nonperiodic_linear", non_periodic_bundle)
     non_periodic_payload = {
         "forecast": _forecast_for_case("tiny_nonperiodic_linear", "non_periodic"),
         "observed_curve_classes": {
@@ -422,9 +433,14 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
         },
         "checkpoints": non_periodic_checkpoints,
         "causal_validation": _causal_validation(non_periodic_model, non_hf, non_hs, non_hl, periodic=False),
+        "mechanism_discovery": _circuit_report(non_periodic_circuit),
     }
     non_periodic_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(non_periodic_payload["forecast"], non_periodic_checkpoints)
-    non_periodic_payload["targeted_vs_random_ablation"] = _targeted_vs_random_ablation(non_periodic_model, non_hf, non_hs, non_hl)
+    non_periodic_payload["targeted_vs_random_ablation"] = {
+        "baseline_accuracy": round(_classification_accuracy(non_periodic_model, non_hf, non_hl), 4),
+        "targeted_drop": non_periodic_circuit.analysis_metadata.get("targeted_drop", 0.0) or 0.0,
+        "random_drop": non_periodic_circuit.analysis_metadata.get("random_drop", 0.0) or 0.0,
+    }
     non_periodic_payload["evidence_rubric"] = _case_evidence_rubric(
         case_id="tiny_nonperiodic_linear",
         forecast=non_periodic_payload["forecast"],
@@ -439,9 +455,18 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
     sparse_rows = _sparse_relational_rows()
     sparse_train, sparse_heldout = _split_rows(sparse_rows)
     sparse_model = TinySparseRelationalNet()
+    sparse_discovery = CircuitDiscovery(sparse_model)
     sparse_checkpoints, _, _, _, sparse_hf, sparse_hs, sparse_hl = _train_model(
         sparse_model, sparse_train, sparse_heldout, steps=96, learning_rate=0.05, periodic=False
     )
+    sparse_hidden = sparse_model.hidden_features(sparse_hf)
+    sparse_bundle = _structured_bundle(
+        sparse_hidden,
+        sparse_hs,
+        sparse_hl,
+        [f"hidden_unit_{index}" for index in range(sparse_hidden.shape[1])],
+    )
+    sparse_circuit = sparse_discovery.identify_circuit("tiny_sparse_relational", sparse_bundle)
     sparse_payload = {
         "forecast": _forecast_for_case("tiny_sparse_relational", "sparse_relational"),
         "observed_curve_classes": {
@@ -451,6 +476,12 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
         },
         "checkpoints": sparse_checkpoints,
         "causal_validation": _causal_validation(sparse_model, sparse_hf, sparse_hs, sparse_hl, periodic=False),
+        "mechanism_discovery": _circuit_report(sparse_circuit),
+        "targeted_vs_random_ablation": {
+            "baseline_accuracy": round(_classification_accuracy(sparse_model, sparse_hf, sparse_hl), 4),
+            "targeted_drop": sparse_circuit.analysis_metadata.get("targeted_drop", 0.0) or 0.0,
+            "random_drop": sparse_circuit.analysis_metadata.get("random_drop", 0.0) or 0.0,
+        },
     }
     sparse_payload["feedback_adjusted_forecast"] = feedback_adjust_forecast(sparse_payload["forecast"], sparse_checkpoints)
     sparse_payload["evidence_rubric"] = _case_evidence_rubric(
@@ -459,6 +490,7 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
         observed_curve_classes=sparse_payload["observed_curve_classes"],
         checkpoints=sparse_checkpoints,
         causal_validation=sparse_payload["causal_validation"],
+        targeted_vs_random=sparse_payload["targeted_vs_random_ablation"],
         control_case=False,
     )
     cases["tiny_sparse_relational"] = sparse_payload

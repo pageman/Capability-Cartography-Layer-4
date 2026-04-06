@@ -14,6 +14,8 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 **The Dependency Turn**: Earlier active paths still implicitly relied on PyTorch being installed even when the repo claimed graceful fallback behavior. The current repo has now moved the benchmarked demo and suite paths to NumPy-only implementations, making the end-to-end evidence package less fragile and better aligned with its portability claims.
 
+**The Convergence Turn**: Earlier benchmark files carried their own local mechanism summaries. The current repo now routes structured bundles from both the tiny-model suite and the small-transformer bundle through the same `circuit_discovery.py` engine, so feature ranking, Fourier scoring, and targeted-vs-random ablation use one shared contract.
+
 **The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
@@ -24,6 +26,9 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 > #### **Story Box 3: From Pure Heuristic Labeling To Rudimentary Real Analysis**
 > Earlier versions of `circuit_discovery.py` mapped capability names to canned circuit labels. The current repo still does not perform full ACDC/SAE graph recovery, but it now does one real thing: when given a structured linear feature bundle, it ranks components by alignment, computes a real Fourier score, and compares targeted ablation against random control ablation.
+
+> #### **Story Box 4: One Discovery Engine, Two Benchmark Paths**
+> The repo now applies the same discovery engine to two different evidence paths. `real_tiny_case.py` supplies explicit feature bundles from its NumPy models, while `small_transformer_case.py` extracts final context-vector bundles from the checkpointed attention model. That does not make the analysis broad, but it does remove a previous source of methodological drift.
 
 ---
 
@@ -38,8 +43,8 @@ The CCL4 pipeline is a dual-engine system:
 
 2.  **Mapping Engine (Post-training)**:
     -   **Input**: Model weights, structured feature bundles, and checkpoint history.
-    -   **Process**: checkpointed proxy discovery on tiny NumPy models, rudimentary feature-level circuit analysis for structured linear bundles, plus a narrow implemented small-transformer attention-route extraction across two synthetic families.
-    -   **Output**: benchmark-specific circuit summaries, causal verification via targeted-vs-random ablation, real Fourier scores for linear bundles, and explicit artifact-level `claim_coverage` / `failure_modes`.
+    -   **Process**: checkpointed proxy discovery on tiny NumPy models, shared rudimentary feature-level circuit analysis for structured linear bundles, plus a narrow implemented small-transformer attention-route extraction across two synthetic families.
+    -   **Output**: benchmark-specific circuit summaries, causal verification via targeted-vs-random ablation, real Fourier scores for structured bundles, and explicit artifact-level `claim_coverage` / `failure_modes`.
 
 3.  **Observability Layer**:
     -   **Input**: Generated artifacts and repo test runs.
@@ -54,6 +59,9 @@ The CCL4 pipeline is a dual-engine system:
 
 > #### **Method Box 3: Rudimentary Circuit Analysis Contract**
 > The current `circuit_discovery.py` no longer only emits canned labels. On structured linear bundles it now: (1) ranks features by alignment with the target score, (2) computes a Fourier signature from actual values, and (3) measures targeted-vs-random ablation drop through a minimal model adapter. This is still narrow analysis, but it is no longer purely descriptive.
+
+> #### **Method Box 4: Shared Feature-Bundle Integration**
+> The tiny-model suite now feeds explicit feature matrices into `circuit_discovery.py`, and the small-transformer bundle now feeds final context vectors from the trained attention model into the same discovery engine. This creates an end-to-end benchmark contract: generate bundle, discover components, compare targeted and random ablation, then record the result in the artifact layer.
 
 ---
 

@@ -8,9 +8,11 @@ import numpy as np
 
 try:  # pragma: no cover - import fallback for script execution
     from .case_study import classify_metric_curve, classify_rmse_curve
+    from .circuit_discovery import CircuitDiscovery
     from .checkpointed_attention_discovery import RealCircuitDiscoveryResult, discover_stable_attention_circuit
 except ImportError:  # pragma: no cover
     from capability_cartography_layer4.case_study import classify_metric_curve, classify_rmse_curve
+    from capability_cartography_layer4.circuit_discovery import CircuitDiscovery
     from capability_cartography_layer4.checkpointed_attention_discovery import (
         RealCircuitDiscoveryResult,
         discover_stable_attention_circuit,
@@ -240,6 +242,17 @@ def _average_attention(model: TinyAttentionSequenceModel, rows: Sequence[Tuple[i
     return np.mean(attention, axis=0).round(4).tolist()
 
 
+def _context_bundle(model: TinyAttentionSequenceModel, rows: Sequence[Tuple[int, List[int], float, int]]) -> Dict[str, object]:
+    sequences = np.asarray([row[1] for row in rows], dtype=int)
+    outputs = model.forward_batch(sequences)
+    return {
+        "features": outputs["context"].tolist(),
+        "scores": [row[2] for row in rows],
+        "labels": [row[3] for row in rows],
+        "component_names": [f"context_dim_{index}" for index in range(outputs["context"].shape[1])],
+    }
+
+
 def _checkpoint_record(model: TinyAttentionSequenceModel, step: int, train_rows, heldout_rows) -> Dict[str, object]:
     return {
         "step": step,
@@ -395,6 +408,8 @@ def _write_summary_report(
                 f"- observed rmse curve: `{family['observed_curve_classes']['score_rmse']}`",
                 f"- final held-out accuracy: `{family['checkpoints'][-1]['heldout_classification_accuracy']:.4f}`",
                 f"- stable overlap score: `{family['mechanism_discovery']['stable_overlap_score']:.2f}`",
+                f"- feature-bundle circuit: `{', '.join(family['feature_bundle_discovery']['components'])}`",
+                f"- feature-bundle Fourier signature: `{family['feature_bundle_discovery']['fourier_signature']}`",
                 f"- targeted ablation drop: `{family['causal_validation']['targeted_drop']:.4f}`",
                 f"- random ablation drop: `{family['causal_validation']['random_drop']:.4f}`",
                 f"- restoration recovery: `{family['causal_validation']['restoration_recovery']:.4f}`",
@@ -420,6 +435,8 @@ def _family_payload(
     control_family: bool = False,
 ) -> Dict[str, object]:
     model, checkpoints, _, heldout_rows = _train_small_transformer_case(rows, target_attention=target_attention)
+    circuit_discovery = CircuitDiscovery(model)
+    circuit = circuit_discovery.identify_circuit(family_id, _context_bundle(model, heldout_rows))
     discovery = discover_stable_attention_circuit(checkpoints, family_id=family_id)
     causal_validation = _evaluate_discovery(model, discovery, heldout_rows)
     observed_curve_classes = {
@@ -446,6 +463,13 @@ def _family_payload(
         "observed_curve_classes": observed_curve_classes,
         "checkpoints": checkpoints,
         "mechanism_discovery": discovery.to_dict(),
+        "feature_bundle_discovery": {
+            "circuit_type": circuit.type.value,
+            "components": list(circuit.components),
+            "fourier_signature": circuit.fourier_signature,
+            "mechanism_description": circuit.mechanism_description,
+            "analysis_metadata": circuit.analysis_metadata,
+        },
         "causal_validation": causal_validation,
         "evidence_rubric": evidence_rubric,
         "claim_coverage": "low-to-medium",
@@ -534,7 +558,14 @@ def run_small_transformer_case(base_dir: Optional[Path] = None) -> SmallTransfor
             "stable attention-route extraction does not imply full circuit recovery",
             "discovered routes are family-local and may not transfer",
         ],
-        "families": [family["mechanism_discovery"] for family in family_reports],
+        "families": [
+            {
+                "family_id": family["family_id"],
+                "attention_route_discovery": family["mechanism_discovery"],
+                "feature_bundle_discovery": family["feature_bundle_discovery"],
+            }
+            for family in family_reports
+        ],
     }
 
     causal_validation = {
