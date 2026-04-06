@@ -78,6 +78,20 @@ The canonical evidence artifacts for this repo remain:
 
 GitNexus outputs should be understood as observability and navigation support around the codebase that produces those artifacts, not as evidence artifacts themselves.
 
+## GitNexus Use Cases
+
+Within this repo, the most useful GitNexus workflows are:
+- onboarding developers or agents to the forecasting, discovery, and benchmark structure without treating docs alone as the source of truth,
+- tracing how [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py) connects to [`real_tiny_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/real_tiny_case.py), [`small_transformer_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/small_transformer_case.py), and [`benchmark/run_minimal_suite.py`](/Users/hifi/Capability-Cartography-Layer-4/benchmark/run_minimal_suite.py),
+- identifying which benchmark artifacts and tests are most likely to be affected by edits to forecasting or discovery code,
+- helping coding agents separate benchmark evidence paths from optional tooling and sidecar observability files,
+- supporting stub-replacement planning by locating active-path heuristics versus planned extensions.
+
+GitNexus is less useful here for:
+- validating scientific claims,
+- replacing the explicit evidence ledgers in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) or [`CLAIMS.md`](/Users/hifi/Capability-Cartography-Layer-4/CLAIMS.md),
+- acting as a substitute for rerunning the benchmark suite.
+
 ## Current Recommendation
 
 Use GitNexus to improve:

@@ -86,6 +86,7 @@ The current research arc is narrower and better instrumented than earlier repo d
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
 - mirror the tiny-suite positive/control/falsifier structure inside the small-transformer bundle, while keeping that bundle explicitly preliminary,
 - keep the benchmark/evidence layer separate from optional developer observability by committing only lightweight GitNexus context files and excluding raw index storage,
+- document concrete GitNexus developer-observability use cases for onboarding, dependency tracing, change-impact analysis, and agent context while keeping those workflows outside the scientific evidence boundary,
 - replace the earlier self-citation placeholders with the current 2026 ResearchGate references that match the repo’s narrowed forecasting and causal-cartography framing,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
