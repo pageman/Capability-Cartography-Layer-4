@@ -67,6 +67,9 @@ The methodology currently implements a narrow dual-engine process:
 2.  **Mapping Engine (Post-training)**: Tracks checkpointed proxy signals, runs simple ablation/restoration checks on NumPy tiny benchmark models, and performs rudimentary feature-level circuit analysis when structured feature bundles are available.
 3.  **Observability Layer**: Writes artifact-level `claim_coverage`, `failure_modes`, and provenance manifests so the repo’s evidence boundary is machine-readable.
 
+### 5. Optional GitNexus Observability
+The repo can also support an optional GitNexus-based architecture/index layer for developer navigation and agent context. In CCL4, that layer is kept separate from the benchmark/evidence layer: commit lightweight human-readable context like `AGENTS.md` and `CLAUDE.md` if useful, but do not treat raw `.gitnexus/` or LadybugDB index files as scientific artifacts. See [`observability/gitnexus/README.md`](/Users/hifi/Capability-Cartography-Layer-4/observability/gitnexus/README.md).
+
 ## Research Arc
 
 The current research arc is narrower and better instrumented than earlier repo drafts:
@@ -83,6 +86,7 @@ The current research arc is narrower and better instrumented than earlier repo d
 - replace the earlier self-citation placeholders with the current 2026 ResearchGate references that match the repo’s narrowed forecasting and causal-cartography framing,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
+- define GitNexus as an optional developer-facing observability layer rather than folding its raw index outputs into the benchmark artifact set,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
 
 The resulting posture is: evidence-backed narrow forecasting plus narrow mechanism discovery, with explicit failure modes and planned extensions rather than implied generality.
@@ -104,6 +108,7 @@ The resulting posture is: evidence-backed narrow forecasting plus narrow mechani
 -   `benchmark/run_minimal_suite.py`: End-to-end runner for the small benchmark plus real tiny-model suite.
 -   `CLAIMS.md`: Claim ledger separating replicated, preliminary, and hypothetical statements.
 -   `verification.yaml`: Root observability artifact describing current evidence scope, claim coverage, and failure modes.
+-   `observability/gitnexus/README.md`: Guidance for optional GitNexus integration as a repo observability layer rather than a benchmark artifact.
 -   `PARAMETERS.md`: Operational definitions and uncertainty notes for `(m, r, d, s*)`.
 -   `TRANSFER.md`: Narrow statement of what SplitUP/Schur-inspired transfer does and does not justify in this repo.
 -   `ROADMAP.md`: File-by-file roadmap for moving the repo from framework sketch to evidence-backed package.

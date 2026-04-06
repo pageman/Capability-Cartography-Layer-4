@@ -31,6 +31,19 @@ artifacts:
       - "artifact bundle does not establish frontier-model or large-model circuit discovery"
       - "ablation comparison remains exploratory and can be mixed across families"
       - "held-out accuracy and curve class remain insufficient evidence for general mechanistic theory"
+tooling:
+  gitnexus:
+    status: "optional_observability"
+    scope: "developer-facing architecture/index layer kept separate from benchmark evidence"
+    expected_repo_outputs:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - ".claude/skills/generated/"
+    ignored_repo_outputs:
+      - ".gitnexus/"
+    notes:
+      - "GitNexus output is intended for code navigation and agent context, not scientific claim validation."
+      - "Raw local index and LadybugDB files are intentionally not committed."
 claims:
   forecasting_narrow_benchmark:
     status: "replicated"
