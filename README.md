@@ -59,6 +59,9 @@ python3 capability_cartography_layer4/demo.py
 -   Schur, F. et al. (2026). *Many Experiments, Few Repetitions, Unpaired Data, and Sparse Effects*. arXiv:2601.15254
 -   Pajo, P. (2026). *Predicting AI Capability Trajectories Before Training: A Regime-Theoretic Framework*.
 -   Pajo, P. (2026). *Mechanistic Causal Analysis for LLM Capability Cartography*.
+-   **Capability Cartography Layer 3**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer-3) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartography-Layer-3)
+-   **Capability Cartography Layer 2**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer-2) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartograpy-Layer-2)
+-   **Capability Cartography Layer 1**: [GitHub](https://github.com/pageman/Capability-Cartography-Layer) | [DeepWiki](https://deepwiki.com/pageman/Capability-Cartography-Layer)
 
 ## Citation
 
