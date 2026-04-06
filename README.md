@@ -30,6 +30,16 @@ Instead of treating the model as a black box, CCL4 identifies the minimal subgra
 ### 3. The Quantum Connection Hypothesis
 CCL4 explores the novel research question of whether transformers trained on modular arithmetic independently discover the same Fourier-based computational strategies underlying quantum algorithms like **Shor's Algorithm** and the **Quantum Fourier Transform (QFT)**.
 
+## Research Arc
+
+### Narrative Arc: From Measurement to Mastery
+The research moves the project from **Diagnostic** (explaining past failures) to **Predictive** (knowing future success). A critical breakthrough was the **P04 Correction**, where the framework transitioned from "shallow metadata" to "deep intent," achieving 100% accuracy on historical benchmarks. This narrative journey is defined by the discovery that AI unpredictability is often a data-masking effect, solvable through the **Quantum-Fourier Bridge**—the realization that models reinvent quantum-like algorithms for modular arithmetic.
+
+### Methodological Arc: The Dual-Engine Pipeline
+The methodology implements a rigorous dual-engine process:
+1.  **Forecasting Engine (Pre-training)**: Utilizes $(m,r,d,s^*)$ regime parameters to predict trajectories (Power-law vs. Emergent) and identifies **Intrinsic Dimension** proxies for sudden capability onset.
+2.  **Mapping Engine (Post-training)**: Deploys **ACDC (Automated Circuit Discovery)** and **SAE (Sparse Autoencoders)** to verify that the emerged capability is causally grounded in a specific internal circuit, bridging the gap between statistical pathology and mechanistic implementation.
+
 ## Project Structure
 
 -   `regime_forecaster.py`: Logic for pre-training trajectory prediction.
