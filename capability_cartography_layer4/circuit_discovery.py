@@ -20,7 +20,8 @@ class CircuitDiscovery:
             top_indices, top_scores = self._rank_components(features, scores)
             selected_names = [component_names[index] for index in top_indices]
             fourier_signature = self._bundle_fourier_signature(features, scores)
-            circuit_type = self._classify_circuit_type(capability_id, fourier_signature)
+            monotonic_signal = self._bundle_monotonic_signal(features, scores)
+            circuit_type = self._classify_circuit_type(capability_id, fourier_signature, monotonic_signal)
             mechanism_circuit = self._build_feature_circuit(selected_names, top_scores)
 
             targeted_drop = None
@@ -42,6 +43,7 @@ class CircuitDiscovery:
                     "component_scores": {selected_names[i]: top_scores[i] for i in range(len(selected_names))},
                     "targeted_drop": round(targeted_drop, 4) if targeted_drop is not None else None,
                     "random_drop": round(random_drop, 4) if random_drop is not None else None,
+                    "monotonic_signal": round(monotonic_signal, 4),
                 },
             )
 
@@ -82,7 +84,8 @@ class CircuitDiscovery:
             top_indices, top_scores = self._rank_components(features, scores)
             selected_names = [component_names[index] for index in top_indices]
             fourier_signature = self._bundle_fourier_signature(features, scores)
-            circuit_type = self._classify_circuit_type(capability_id, fourier_signature)
+            monotonic_signal = self._bundle_monotonic_signal(features, scores)
+            circuit_type = self._classify_circuit_type(capability_id, fourier_signature, monotonic_signal)
             mechanism_circuit = self._build_feature_circuit(selected_names, top_scores)
             targeted_drop, random_drop = self._ablation_drops(selected_names, self.model, features, labels, component_names)
             return CircuitDefinition(
@@ -98,6 +101,7 @@ class CircuitDiscovery:
                     "component_scores": {selected_names[i]: top_scores[i] for i in range(len(selected_names))},
                     "targeted_drop": round(targeted_drop, 4),
                     "random_drop": round(random_drop, 4),
+                    "monotonic_signal": round(monotonic_signal, 4),
                     "bundle_origin": "model_inferred",
                 },
             )
@@ -221,9 +225,30 @@ class CircuitDiscovery:
         periodic_scores = [self.detect_fourier_signature(features[:, index]) for index in range(features.shape[1])]
         return max(self.detect_fourier_signature(scores), max(periodic_scores, default=0.0))
 
-    def _classify_circuit_type(self, capability_id: str, fourier_signature: float) -> CircuitType:
+    def _bundle_monotonic_signal(self, features: np.ndarray, scores: np.ndarray) -> float:
+        if len(scores) < 3:
+            return 0.0
+        score_order = np.argsort(scores)
+        sorted_scores = scores[score_order]
+        metrics = [self._monotonic_agreement(sorted_scores)]
+        for index in range(features.shape[1]):
+            metrics.append(self._monotonic_agreement(features[score_order, index]))
+        return float(max(metrics))
+
+    def _monotonic_agreement(self, values: np.ndarray) -> float:
+        diffs = np.diff(np.asarray(values, dtype=float))
+        non_zero = diffs[np.abs(diffs) > 1e-9]
+        if non_zero.size == 0:
+            return 0.0
+        positive = float(np.mean(non_zero > 0.0))
+        negative = float(np.mean(non_zero < 0.0))
+        return max(positive, negative)
+
+    def _classify_circuit_type(self, capability_id: str, fourier_signature: float, monotonic_signal: float = 0.0) -> CircuitType:
         if "induction" in capability_id or "in-context" in capability_id:
             return CircuitType.INDUCTION
+        if ("nonperiodic" in capability_id or "linear" in capability_id) and monotonic_signal >= 0.9:
+            return CircuitType.SPARSE_AUTOENCODER
         if "modular" in capability_id or "exponentiation" in capability_id or fourier_signature >= 0.35:
             return CircuitType.FOURIER
         return CircuitType.SPARSE_AUTOENCODER

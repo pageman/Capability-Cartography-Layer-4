@@ -66,6 +66,7 @@ def _classify_unpredictability(summary: dict) -> dict:
             "false_unpredictability_supported": [
                 "periodic modular jumps can be amplified by thresholded scoring",
                 "smooth RMSE progress can coexist with sudden-looking coarse success",
+                "the non-periodic control remains smooth under the shared discovery rubric with low periodicity and high score calibration",
             ],
             "real_unpredictability_remaining": [
                 "sparse relational case misses the forecast even after metric controls",

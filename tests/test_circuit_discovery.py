@@ -67,6 +67,30 @@ class CircuitDiscoveryTests(unittest.TestCase):
         self.assertEqual(circuit.analysis_metadata["bundle_origin"], "model_inferred")
         self.assertGreaterEqual(circuit.analysis_metadata["targeted_drop"], 0.1)
 
+    def test_non_periodic_bundle_prefers_monotonic_interpretation(self) -> None:
+        features = []
+        scores = []
+        labels = []
+        for x in [0, 4, 8, 12, 16]:
+            normalized = x / 16.0
+            centered = normalized - 0.5
+            row = [normalized, normalized ** 2, centered, 1.0]
+            score = 1.1 * normalized + 0.2 * (normalized ** 2) - 0.55
+            label = 1 if score >= 0.0 else 0
+            features.append(row)
+            scores.append(score)
+            labels.append(label)
+
+        model = LinearPeriodicModel([1.1, 0.2, 0.0, 0.0])
+        discovery = CircuitDiscovery(model)
+        circuit = discovery.identify_circuit(
+            "tiny_nonperiodic_linear",
+            {"features": features, "scores": scores, "labels": labels},
+        )
+
+        self.assertEqual(circuit.type.value, "sae_feature")
+        self.assertGreaterEqual(circuit.analysis_metadata["monotonic_signal"], 0.9)
+
 
 if __name__ == "__main__":
     unittest.main()

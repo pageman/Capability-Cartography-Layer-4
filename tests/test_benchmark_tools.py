@@ -4,6 +4,7 @@ from pathlib import Path
 
 from benchmark.baselines import run_baseline_benchmark
 from benchmark.metric_ablation import run_metric_ablation
+from capability_cartography_layer4.real_tiny_case import run_real_tiny_suite
 
 
 class BenchmarkToolTests(unittest.TestCase):
@@ -21,6 +22,14 @@ class BenchmarkToolTests(unittest.TestCase):
             self.assertEqual(result["metric_curve_classes"]["thresholded_pass_rate"], "step-function")
             self.assertNotEqual(result["metric_curve_classes"]["score_rmse"], "step-function")
             self.assertTrue(result["falsification_controls"]["non_periodic_control_fourier_signal_stays_low"])
+
+    def test_real_tiny_control_case_is_strong_under_control_rubric(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = run_real_tiny_suite(Path(temp_dir))
+            control = result["cases"]["tiny_nonperiodic_linear"]
+            self.assertEqual(control["observed_curve_classes"]["score_rmse"], "power-law")
+            self.assertEqual(control["evidence_rubric"]["overall_evidence_grade"], "strong")
+            self.assertTrue(control["evidence_rubric"]["supports_control_claim"])
 
 
 if __name__ == "__main__":

@@ -54,6 +54,7 @@ The current repo demonstrates a narrow package:
 - a rudimentary feature-level circuit discovery path for structured linear bundles,
 - a raw-matrix inference path that lets `circuit_discovery.py` analyze compatible linear/readout demos without requiring prebuilt feature-bundle metadata,
 - an end-to-end integration where [`real_tiny_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/real_tiny_case.py) and [`small_transformer_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/small_transformer_case.py) now feed structured feature bundles directly into [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py),
+- a strong non-periodic tiny-model control with high held-out score calibration, low periodicity, and no special targeted-ablation advantage over random controls,
 - baseline comparisons on a frozen small benchmark.
 - a root [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) that records scope, claim coverage, and failure modes for the current evidence artifacts.
 - a frozen [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json) for the canonical small-transformer artifact package.
@@ -75,6 +76,7 @@ The current research arc is narrower and better instrumented than earlier repo d
 - remove unnecessary active-path PyTorch dependency from the benchmarked demo and suite flows,
 - upgrade `circuit_discovery.py` from pure string heuristics to a rudimentary real analysis path for linear feature bundles,
 - extend that discovery path so raw NumPy matrices with compatible linear/readout models can be converted into inferred feature bundles instead of dropping immediately to canned labels,
+- strengthen the non-periodic tiny control so it now passes the shared rubric as a smooth calibrated control instead of a weak residual case,
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,

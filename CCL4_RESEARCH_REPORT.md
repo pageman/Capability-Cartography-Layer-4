@@ -18,6 +18,8 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 **The Metadata Audit Turn**: A repo-wide stub sweep now distinguishes active-path implementation gaps from acceptable narrow placeholders. The most important closed gap is that `circuit_discovery.py` can now infer feature bundles directly from raw NumPy matrices when paired with a compatible linear/readout model, rather than dropping immediately to canned labels. The main remaining stubs are now isolated to three bounded areas: full graph recovery on realistic checkpoints, the optional quantum analogy layer, and heuristic fallbacks when neither a structured bundle nor an analyzable model is present.
 
+**The Control Clarification Turn**: Earlier shared-rubric runs left the non-periodic tiny control graded as weak because it was effectively being judged against periodic-family criteria. The current repo now treats that family as a true smooth control: it uses a cleaner monotonic target, a representative held-out split, held-out score calibration metrics, and a control-specific grading rule that rewards low periodicity and the absence of special targeted-ablation effects.
+
 **The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
@@ -34,6 +36,9 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 > #### **Story Box 5: The Stub Audit Compression**
 > The repo no longer treats every weak area as equally urgent. A metadata sweep compressed the active stub surface down to a short list: (1) full ACDC/SAE-style graph recovery on realistic checkpoints, (2) optional quantum analogy logic, and (3) heuristic fallbacks for inputs that still lack analyzable structure. Everything else in the active benchmark path is now either implemented, tested, or explicitly marked as narrow.
+
+> #### **Story Box 6: The Control Strengthening Pass**
+> The non-periodic tiny family is no longer just “not periodic.” It is now a positive smooth control. Its held-out split spans the score range, its outputs stay highly calibrated, its monotonic agreement remains high, and targeted ablation is no more destructive than matched random ablation. That makes the contrast with the periodic case cleaner and the benchmark more scientifically useful.
 
 ---
 
@@ -70,6 +75,9 @@ The CCL4 pipeline is a dual-engine system:
 
 > #### **Method Box 5: Minimum-Viable Stub Replacements**
 > The repo now records a concrete replacement path for each remaining stub family. For raw matrix inputs, `circuit_discovery.py` infers a feature bundle from model outputs and analyzes it through the same scoring and ablation contract. For checkpointed attention traces, the next minimum-viable upgrade is to replace stable-position overlap with edge-level route extraction and matched control ablations. For the optional quantum layer, the minimum honest replacement is to keep it as analogy-only unless it improves benchmark prediction or mechanism selection measurably.
+
+> #### **Method Box 6: Control-Specific Evidence Criteria**
+> The shared rubric now distinguishes between positive mechanism cases and smooth control cases. Periodic families still need masking support, precursor rise, and targeted-ablation separation. The non-periodic control instead needs power-law RMSE, strong held-out score correlation, high monotonic agreement, low periodicity, and no special targeted-ablation advantage over random controls. This avoids grading the control as a failed periodic case.
 
 ---
 

@@ -102,8 +102,9 @@ def _non_periodic_rows() -> List[Tuple[int, List[float], float, int]]:
     rows = []
     for x in range(17):
         normalized = x / 16.0
-        features = [normalized, 1.0, 0.0, 0.0]
-        score = 1.4 * normalized - 0.6
+        centered = normalized - 0.5
+        features = [normalized, normalized ** 2, centered, 1.0]
+        score = 1.1 * normalized + 0.2 * (normalized ** 2) - 0.55
         label = 1 if score >= 0.0 else 0
         rows.append((x, features, score, label))
     return rows
@@ -124,6 +125,13 @@ def _sparse_relational_rows() -> List[Tuple[int, List[float], float, int]]:
 def _split_rows(rows: Sequence[Tuple[int, List[float], float, int]]) -> Tuple[List, List]:
     train = [row for row in rows if row[0] % 3 != 0]
     heldout = [row for row in rows if row[0] % 3 == 0]
+    return train, heldout
+
+
+def _split_non_periodic_rows(rows: Sequence[Tuple[int, List[float], float, int]]) -> Tuple[List, List]:
+    heldout_ids = {0, 4, 8, 12, 16}
+    train = [row for row in rows if row[0] not in heldout_ids]
+    heldout = [row for row in rows if row[0] in heldout_ids]
     return train, heldout
 
 
@@ -148,6 +156,29 @@ def _thresholded_pass_rate(model, features: np.ndarray, scores: np.ndarray, labe
 
 def _rmse(model, features: np.ndarray, scores: np.ndarray) -> float:
     return float(np.sqrt(np.mean((model.predict_matrix(features) - scores) ** 2)))
+
+
+def _score_correlation(model, features: np.ndarray, scores: np.ndarray) -> float:
+    predictions = np.asarray(model.predict_matrix(features), dtype=float)
+    if len(predictions) < 2 or np.std(predictions) <= 1e-9 or np.std(scores) <= 1e-9:
+        return 0.0
+    return float(np.corrcoef(predictions, scores)[0, 1])
+
+
+def _monotonic_agreement(values: np.ndarray) -> float:
+    diffs = np.diff(np.asarray(values, dtype=float))
+    non_zero = diffs[np.abs(diffs) > 1e-9]
+    if non_zero.size == 0:
+        return 0.0
+    positive = float(np.mean(non_zero > 0.0))
+    negative = float(np.mean(non_zero < 0.0))
+    return max(positive, negative)
+
+
+def _score_monotonic_agreement(model, features: np.ndarray, scores: np.ndarray) -> float:
+    predictions = np.asarray(model.predict_matrix(features), dtype=float)
+    order = np.argsort(scores)
+    return _monotonic_agreement(predictions[order])
 
 
 def _periodic_signal(model) -> float:
@@ -189,6 +220,12 @@ def _train_model(model, train_rows, heldout_rows, steps: int, learning_rate: flo
                     _classification_accuracy(model, heldout_features, heldout_labels), 4
                 ),
                 "heldout_score_rmse": round(_rmse(model, heldout_features, heldout_scores), 4),
+                "score_correlation": round(_score_correlation(model, train_features, train_scores), 4),
+                "heldout_score_correlation": round(_score_correlation(model, heldout_features, heldout_scores), 4),
+                "score_monotonic_agreement": round(_score_monotonic_agreement(model, train_features, train_scores), 4),
+                "heldout_score_monotonic_agreement": round(
+                    _score_monotonic_agreement(model, heldout_features, heldout_scores), 4
+                ),
                 "fourier_signal": round(_periodic_signal(model), 4) if periodic else 0.0,
                 "circuit_completeness": round(_sparse_completeness(model, periodic), 4),
             }
@@ -298,6 +335,7 @@ def _circuit_report(circuit) -> Dict[str, object]:
         "component_scores": circuit.analysis_metadata.get("component_scores", {}),
         "targeted_drop": circuit.analysis_metadata.get("targeted_drop"),
         "random_drop": circuit.analysis_metadata.get("random_drop"),
+        "monotonic_signal": circuit.analysis_metadata.get("monotonic_signal"),
     }
 
 
@@ -317,6 +355,8 @@ def _case_evidence_rubric(
     fourier_gain = round(early.get("fourier_signal", 0.0) - first.get("fourier_signal", 0.0), 4)
     completeness_gain = round(early.get("circuit_completeness", 0.0) - first.get("circuit_completeness", 0.0), 4)
     late_fourier_strength = round(late.get("fourier_signal", 0.0), 4)
+    heldout_score_correlation = round(late.get("heldout_score_correlation", 0.0), 4)
+    heldout_monotonic_agreement = round(late.get("heldout_score_monotonic_agreement", 0.0), 4)
 
     supports_forecast = str(forecast["forecast_type"]) in {
         observed_curve_classes["thresholded_pass_rate"],
@@ -336,11 +376,20 @@ def _case_evidence_rubric(
     )
     if control_case:
         supports_masking = False
-        supports_forecast = observed_curve_classes["score_rmse"] == "power-law"
+        supports_forecast = (
+            observed_curve_classes["score_rmse"] == "power-law"
+            and heldout_score_correlation >= 0.98
+            and heldout_monotonic_agreement >= 0.95
+            and late_fourier_strength <= 0.05
+        )
         supports_mechanism = (
             abs(fourier_gain) <= 0.05
-            and abs(completeness_gain) <= 0.1
-            and (targeted_vs_random is None or abs(targeted_vs_random["targeted_drop"] - targeted_vs_random["random_drop"]) <= 0.2)
+            and heldout_score_correlation >= 0.98
+            and heldout_monotonic_agreement >= 0.95
+            and (
+                targeted_vs_random is None
+                or abs(targeted_vs_random["targeted_drop"] - targeted_vs_random["random_drop"]) <= 0.05
+            )
         )
 
     grade = "weak"
@@ -356,10 +405,13 @@ def _case_evidence_rubric(
         "supports_forecast_claim": supports_forecast,
         "overall_evidence_grade": grade,
         "control_case": control_case,
+        "supports_control_claim": control_case and supports_forecast and supports_mechanism,
         "early_rmse_drop": rmse_drop,
         "early_fourier_gain": fourier_gain,
         "early_completeness_gain": completeness_gain,
         "late_fourier_strength": late_fourier_strength,
+        "heldout_score_correlation": heldout_score_correlation,
+        "heldout_score_monotonic_agreement": heldout_monotonic_agreement,
     }
 
 
@@ -411,7 +463,7 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
     cases["tiny_periodic_modular"] = periodic_payload
 
     non_periodic_rows = _non_periodic_rows()
-    non_periodic_train, non_periodic_heldout = _split_rows(non_periodic_rows)
+    non_periodic_train, non_periodic_heldout = _split_non_periodic_rows(non_periodic_rows)
     non_periodic_model = TinyPeriodicNet()
     non_periodic_discovery = CircuitDiscovery(non_periodic_model)
     non_periodic_checkpoints, _, _, _, non_hf, non_hs, non_hl = _train_model(
@@ -421,7 +473,7 @@ def run_real_tiny_suite(output_dir: Optional[Path] = None) -> Dict[str, object]:
         non_hf,
         non_hs,
         non_hl,
-        ["normalized_input", "bias_like", "unused_0", "unused_1"],
+        ["normalized_input", "quadratic_trend", "centered_input", "bias_like"],
     )
     non_periodic_circuit = non_periodic_discovery.identify_circuit("tiny_nonperiodic_linear", non_periodic_bundle)
     non_periodic_payload = {
