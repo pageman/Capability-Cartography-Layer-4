@@ -1,5 +1,8 @@
 # Capability Cartography Layer 4: Narrow Predictive & Mechanistic Benchmark
 
+> **About**  
+> A narrow benchmark package exploring the Tao-Keating concern through regime-theoretic forecasting heuristics, metric-masking analysis, and checkpointed mechanistic evidence on frozen synthetic task families. See: https://x.com/DrBrianKeating/status/2036088121167880278
+
 **Capability Cartography Layer 4 (CCL4)** is currently best read as an evidence-backed narrow benchmark package. While Layer 3 provided causal explanations for past failures, this repo now focuses on two bounded directions:
 
 1.  **Predictive (The "When")**: A regime-theoretic heuristic for forecasting trajectory classes *before* training on a frozen small benchmark.
@@ -41,7 +44,7 @@ In the current benchmark package, the periodic modular case is treated as mostly
 
 ## What The Repo Demonstrates
 
-### Narrative Arc: From Measurement to Mastery
+### Narrative Arc: From Measurement to Narrow Evidence
 The current repo demonstrates a narrow package:
 - a registered pre-training forecast on frozen toy cases,
 - a checkpointed modular case study with metric masking,
@@ -56,7 +59,7 @@ The current repo demonstrates a narrow package:
 
 It does **not** yet demonstrate a general solution to Tao’s unpredictability puzzle, frontier-model circuit discovery, or strong multi-domain generalization.
 
-### Methodological Arc: The Dual-Engine Pipeline
+### Methodological Arc: The Dual-Engine Pipeline With Shared Discovery
 The methodology currently implements a narrow dual-engine process:
 1.  **Forecasting Engine (Pre-training)**: Utilizes $(m,r,d,s^*)$ and metadata heuristics to predict trajectory classes on a frozen small benchmark.
 2.  **Mapping Engine (Post-training)**: Tracks checkpointed proxy signals, runs simple ablation/restoration checks on NumPy tiny benchmark models, and performs rudimentary feature-level circuit analysis when structured feature bundles are available.
