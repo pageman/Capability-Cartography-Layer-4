@@ -22,6 +22,8 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 
 **The Falsifier Clarification Turn**: The sparse relational family is no longer allowed to masquerade as a failed periodic discovery. The current repo now treats it as an explicit falsifier: forecast miss remains, the discovery engine reports no informative circuit under the current contract, and targeted ablation remains non-diagnostic. This is a better scientific outcome than a noisy pseudo-mechanism.
 
+**The Observability Boundary Turn**: The repo now draws a cleaner line between scientific evidence and developer tooling. GitNexus is supported as an optional architecture/index layer for code navigation and agent context, but its raw index artifacts are explicitly excluded from the benchmark evidence layer.
+
 **The Quantum Bridge**: In the current repository, the quantum framing should be read as an optional analogy layer over Fourier-structured modular circuits. It is not yet evidence that the repo has established exact classical-quantum equivalence or that the quantum language adds predictive power.
 
 > #### **Story Box 1: The P04 Correction (Overcoming Metadata Bias)**
@@ -45,6 +47,9 @@ Capability Cartography Layer 4 (CCL4) is currently best read as a narrow benchma
 > #### **Story Box 7: The Falsifier Cleanup**
 > The sparse relational family used to fail in a muddled way: weak evidence, but still a misleading circuit label. The repo now treats that family more honestly. It is a falsifier case with a forecast miss, no informative circuit under the current discovery contract, and no meaningful causal leverage from ablation. That is a stronger benchmark artifact because it says exactly where the current theory stops.
 
+> #### **Story Box 8: The Observability Boundary**
+> The repo now separates developer observability from scientific evidence. GitNexus can generate architecture context files and local index state for navigation, but those raw index artifacts are not committed as benchmark evidence. Only lightweight human-readable context files are kept in the repo.
+
 ---
 
 ### 3. The Methodological Arc: The End-to-End Pipeline With Observability
@@ -63,8 +68,8 @@ The CCL4 pipeline is a dual-engine system:
 
 3.  **Observability Layer**:
     -   **Input**: Generated artifacts and repo test runs.
-    -   **Process**: root verification ledger plus deliverable manifest generation.
-    -   **Output**: `verification.yaml`, `deliverable_manifest.json`, and machine-readable scope boundaries for each evidence package.
+    -   **Process**: root verification ledger plus deliverable manifest generation, with optional GitNexus context kept in a separate developer-observability lane.
+    -   **Output**: `verification.yaml`, `deliverable_manifest.json`, machine-readable scope boundaries for each evidence package, and optional committed context files such as `AGENTS.md` / `CLAUDE.md` that are not treated as scientific artifacts.
 
 > #### **Method Box 1: (m, r, d, s*) Regime Boundary Optimization**
 > Based on a Meta-Sweep of 30 foundational papers, we optimized the boundaries for the "Middle Regime." We found that the transition from Classical to Middle regimes occurs at $r=15.0$ (samples per environment), not $20.0$. This refined boundary significantly improved the accuracy of our "Scale Transfer Invariance" flags.
@@ -83,6 +88,9 @@ The CCL4 pipeline is a dual-engine system:
 
 > #### **Method Box 6: Control-Specific Evidence Criteria**
 > The shared rubric now distinguishes between positive mechanism cases and smooth control cases. Periodic families still need masking support, precursor rise, and targeted-ablation separation. The non-periodic control instead needs power-law RMSE, strong held-out score correlation, high monotonic agreement, low periodicity, and no special targeted-ablation advantage over random controls. This avoids grading the control as a failed periodic case.
+
+> #### **Method Box 7: Observability Boundary Management**
+> Optional GitNexus output is now explicitly handled as developer tooling rather than evidence. The repo commits lightweight context files when useful, ignores raw `.gitnexus/` storage, and records that boundary in `verification.yaml` so architecture indexing does not get confused with benchmark validation.
 
 ---
 

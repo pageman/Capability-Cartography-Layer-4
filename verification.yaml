@@ -1,6 +1,6 @@
 schema_version: 1
 generated_by: "manual_repo_snapshot"
-generated_at: "2026-04-06"
+generated_at: "2026-04-07"
 repo_checks:
   compileall:
     command: "PYTHONPATH=/Users/hifi/Capability-Cartography-Layer-4 python3 -m compileall capability_cartography_layer4 benchmark"

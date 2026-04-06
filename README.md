@@ -55,9 +55,11 @@ The current repo demonstrates a narrow package:
 - a raw-matrix inference path that lets `circuit_discovery.py` analyze compatible linear/readout demos without requiring prebuilt feature-bundle metadata,
 - an end-to-end integration where [`real_tiny_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/real_tiny_case.py) and [`small_transformer_case.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/small_transformer_case.py) now feed structured feature bundles directly into [`circuit_discovery.py`](/Users/hifi/Capability-Cartography-Layer-4/capability_cartography_layer4/circuit_discovery.py),
 - a strong non-periodic tiny-model control with high held-out score calibration, low periodicity, and no special targeted-ablation advantage over random controls,
+- a clean sparse relational falsifier that now records forecast miss, missing informative circuit signal, and non-diagnostic ablation explicitly rather than implying a weak positive mechanism,
 - baseline comparisons on a frozen small benchmark.
 - a root [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) that records scope, claim coverage, and failure modes for the current evidence artifacts.
 - a frozen [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json) for the canonical small-transformer artifact package.
+- an optional GitNexus observability layer committed only as lightweight human-readable context, with raw index output excluded from benchmark evidence.
 
 It does **not** yet demonstrate a general solution to Tao’s unpredictability puzzle, frontier-model circuit discovery, or strong multi-domain generalization.
 
@@ -65,7 +67,7 @@ It does **not** yet demonstrate a general solution to Tao’s unpredictability p
 The methodology currently implements a narrow dual-engine process:
 1.  **Forecasting Engine (Pre-training)**: Utilizes $(m,r,d,s^*)$ and metadata heuristics to predict trajectory classes on a frozen small benchmark.
 2.  **Mapping Engine (Post-training)**: Tracks checkpointed proxy signals, runs simple ablation/restoration checks on NumPy tiny benchmark models, and performs rudimentary feature-level circuit analysis when structured feature bundles are available.
-3.  **Observability Layer**: Writes artifact-level `claim_coverage`, `failure_modes`, and provenance manifests so the repo’s evidence boundary is machine-readable.
+3.  **Observability Layer**: Writes artifact-level `claim_coverage`, `failure_modes`, and provenance manifests so the repo’s evidence boundary is machine-readable, while keeping developer-facing GitNexus index output outside the scientific artifact set.
 
 ### 5. Optional GitNexus Observability
 The repo can also support an optional GitNexus-based architecture/index layer for developer navigation and agent context. In CCL4, that layer is kept separate from the benchmark/evidence layer: commit lightweight human-readable context like `AGENTS.md` and `CLAUDE.md` if useful, but do not treat raw `.gitnexus/` or LadybugDB index files as scientific artifacts. See [`observability/gitnexus/README.md`](/Users/hifi/Capability-Cartography-Layer-4/observability/gitnexus/README.md).
@@ -83,10 +85,10 @@ The current research arc is narrower and better instrumented than earlier repo d
 - sharpen the sparse relational miss into a cleaner falsifier by surfacing it as a forecast miss with no informative circuit and non-diagnostic ablation,
 - route both the tiny-model suite and the small-transformer bundle through the same feature-bundle discovery engine,
 - mirror the tiny-suite positive/control/falsifier structure inside the small-transformer bundle, while keeping that bundle explicitly preliminary,
+- keep the benchmark/evidence layer separate from optional developer observability by committing only lightweight GitNexus context files and excluding raw index storage,
 - replace the earlier self-citation placeholders with the current 2026 ResearchGate references that match the repo’s narrowed forecasting and causal-cartography framing,
 - compress the remaining active stub surface to three bounded areas: frontier-style graph recovery, heuristic no-structure fallbacks, and the optional quantum analogy layer,
 - package the strongest current evidence as a canonical small-transformer artifact bundle,
-- define GitNexus as an optional developer-facing observability layer rather than folding its raw index outputs into the benchmark artifact set,
 - freeze scope and provenance in [`verification.yaml`](/Users/hifi/Capability-Cartography-Layer-4/verification.yaml) and [`deliverable_manifest.json`](/Users/hifi/Capability-Cartography-Layer-4/artifacts/small_transformer_case/deliverable_manifest.json).
 
 The resulting posture is: evidence-backed narrow forecasting plus narrow mechanism discovery, with explicit failure modes and planned extensions rather than implied generality.
