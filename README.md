@@ -59,3 +59,21 @@ python3 capability_cartography_layer4/demo.py
 -   Schur, F. et al. (2026). *Many Experiments, Few Repetitions, Unpaired Data, and Sparse Effects*. arXiv:2601.15254
 -   Pajo, P. (2026). *Predicting AI Capability Trajectories Before Training: A Regime-Theoretic Framework*.
 -   Pajo, P. (2026). *Mechanistic Causal Analysis for LLM Capability Cartography*.
+
+## Citation
+
+```bibtex
+@misc{capability-cartography-layer-4-2026,
+  author    = {Paul "The Pageman" Pajo, pageman@gmail.com},
+  title     = {Capability-Cartography-Layer-4: Predictive and Mechanistic Framework},
+  year      = {2026},
+  publisher = {GitHub},
+  journal   = {GitHub Repository},
+  howpublished = {\url{https://github.com/pageman/Capability-Cartography-Layer-4}},
+  note      = {Extends Layer 3 with regime-theoretic forecasting (m,r,d,s*) and mechanistic circuit discovery (ACDC, SAE, Quantum-Fourier bridge).}
+}
+```
+
+## License
+
+This repository is released under the MIT License. See [LICENSE](./LICENSE).
